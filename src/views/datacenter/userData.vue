@@ -17,11 +17,26 @@
         <div class="screen-box">
           <div class="screen-item">
             <div class="echarts-time">
-              <div >手机号</div>
+              <el-select
+                v-model="listQuery.area_num"
+                :filter-method="filterAreaCode"
+                filterable
+                placeholder="请选择"
+                class="areacode"
+              >
+                <el-option
+                  v-for="item in phoneList"
+                  :key="item.id"
+                  :label="item.phoneCode"
+                  :value="item.phoneCode"
+                >
+                  <span style="float: left">{{ item.zhName }}</span>
+                  <span style="float: right; color: #8492a6; font-size: 13px">{{ item.phoneCode }}</span>
+                </el-option>
+              </el-select>
               <div>
                 <el-input
                   v-model="listQuery.phone"
-                   @keyup.native.enter="onSearchData"
                   :disabled="listQuery.printer_type!=''||listQuery.printer_brand!=''||listQuery.width_start!=''
                     ||listQuery.width_end!=''||listQuery.height_start!=''||
                     listQuery.day_percent_print_end!=''||
@@ -40,18 +55,24 @@
                   placeholder="请输入手机号"
                   maxlength="20"
                   type="text"
-                  @input="numberOriginalPrice($event,'phone')" />
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'phone')"
+                />
               </div>
             </div>
           </div>
 
           <div class="screen-item">
             <div class="echarts-time">
-              <div class="title-right">访问时间<el-tooltip class="item" effect="dark" placement="right">
-                <div slot="content" class="tooltip-content-box">
-                  默认为近一周的访问时间</div>
-                <span style="padding-right:16px"><img src="@/assets/img/i-icon.png" class="i-icon-header" alt=""></span>
-              </el-tooltip></div>
+              <div class="title-right">
+                访问时间：
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <div slot="content" class="tooltip-content-box">默认为近一周的访问时间</div>
+                  <span style="padding-right:16px">
+                    <img src="@/assets/img/i-icon.png" class="i-icon-header" alt >
+                  </span>
+                </el-tooltip>
+              </div>
               <!-- <ul>
                 <li :class="dateType=='week'?'active':''" @click="screen('week')">一星期</li>
                 <li :class="dateType=='month'?'active':''" @click="screen('month')">一个月</li>
@@ -59,11 +80,11 @@
               </ul>-->
               <div class="echarts-date">
                 <el-date-picker
+                  ref="date-picker"
                   :picker-options="pickerOptionsDate"
                   v-model="selectDate"
                   :disabled="listQuery.phone!=''"
                   type="daterange"
-                  ref="date-picker"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
                   value-format="yyyy-MM-dd"
@@ -74,137 +95,289 @@
             </div>
           </div>
 
-          <div class="screen-item">
+          <div v-if="isFold" class="screen-item">
             <div class="echarts-time">
-              <div>设备品牌<el-tooltip class="item" effect="dark" placement="right">
-                <div slot="content" class="tooltip-content-box">
-                  用户打印标签使用的设备品牌</div>
-                <span style="padding-right:16px"><img src="@/assets/img/i-icon.png" class="i-icon-header" alt=""></span>
-              </el-tooltip></div>
+              <div>
+                设备品牌：
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <div slot="content" class="tooltip-content-box">用户打印标签使用的设备品牌</div>
+                  <span style="padding-right:16px">
+                    <img src="@/assets/img/i-icon.png" class="i-icon-header" alt >
+                  </span>
+                </el-tooltip>
+              </div>
               <div class="echarts-select">
-                <el-select v-model="listQuery.printer_brand" filterable :disabled="listQuery.phone!=''" class="filter-item m_floatL" placeholder="请选择" @change="changePrinter">
-                  <el-option v-for="(item) in printers" :key="item.id" :label="item.name" :value="item.id" />
+                <el-select
+                  v-model="listQuery.printer_brand"
+                  :disabled="listQuery.phone!=''"
+                  filterable
+                  class="filter-item m_floatL"
+                  placeholder="请选择"
+                  @change="changePrinter"
+                >
+                  <el-option
+                    v-for="(item) in printers"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                  />
                 </el-select>
               </div>
             </div>
           </div>
-          <div class="screen-item">
+          <div v-if="isFold" class="screen-item">
             <div class="echarts-time">
-              <div class="title-right">平均每天打印数量</div>
+              <div class="title-right">平均每天打印数量：</div>
               <div class="echarts-input-right">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.day_percent_print_start" :disabled="listQuery.phone!=''" type="text" placeholder="张" @input="numberOriginalPrice($event,'day_percent_print_start')"/>
+                <el-input
+                  v-model="listQuery.day_percent_print_start"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="张"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'day_percent_print_start')"
+                />
               </div>
               <div style="margin-left:18px;">至</div>
               <div class="echarts-input-left">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.day_percent_print_end" :disabled="listQuery.phone!=''" type="text" placeholder="张" @input="numberOriginalPrice($event,'day_percent_print_end')"/>
+                <el-input
+                  v-model="listQuery.day_percent_print_end"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="张"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'day_percent_print_end')"
+                />
               </div>
             </div>
           </div>
-          <div class="screen-item">
+          <div v-if="isFold" class="screen-item">
             <div class="echarts-time">
-              <div >设备型号<el-tooltip class="item" effect="dark" placement="right">
-                <div slot="content" class="tooltip-content-box">
-                  用户打印标签使用的设备型号</div>
-                <span style="padding-right:16px"><img src="@/assets/img/i-icon.png" class="i-icon-header" alt=""></span>
-              </el-tooltip></div>
-              <div class="echarts-select">
-                <el-select v-model="listQuery.printer_type" filterable :disabled="listQuery.phone!=''" class="filter-item m_floatL" placeholder="请选择">
-                  <el-option v-for="(item) in printerBrands" :key="item.name" :label="item.name" :value="item.name" />
-                </el-select>
-              </div>
-            </div>
-          </div>
-          <div class="screen-item">
-            <div class="echarts-time">
-              <div class="title-right">访问次数</div>
-              <div class="echarts-input-right" >
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.load_times_start" :disabled="listQuery.phone!=''" type="text" placeholder="次" @input="numberOriginalPrice($event,'load_times_start')"/>
+              <div>访问次数：</div>
+              <div class="echarts-input-right">
+                <el-input
+                  v-model="listQuery.load_times_start"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="次"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'load_times_start')"
+                />
               </div>
               <div style="margin-left:18px;">至</div>
-              <div class="echarts-input-left" >
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.load_times_end" :disabled="listQuery.phone!=''" type="text" placeholder="次" @input="numberOriginalPrice($event,'load_timesload_times_end_start')"/>
+              <div class="echarts-input-left">
+                <el-input
+                  v-model="listQuery.load_times_end"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="次"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'load_timesload_times_end_start')"
+                />
+              </div>
+            </div>
+          </div>
+          <div v-if="isFold" class="screen-item">
+            <div class="echarts-time">
+              <div class="title-right">
+                设备型号：
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <div slot="content" class="tooltip-content-box">用户打印标签使用的设备型号</div>
+                  <span style="padding-right:16px">
+                    <img src="@/assets/img/i-icon.png" class="i-icon-header" alt >
+                  </span>
+                </el-tooltip>
+              </div>
+              <div class="echarts-select">
+                <el-select
+                  v-model="listQuery.printer_type"
+                  :disabled="listQuery.phone!=''"
+                  filterable
+                  class="filter-item m_floatL"
+                  placeholder="请选择"
+                >
+                  <el-option
+                    v-for="(item) in printerBrands"
+                    :key="item.name"
+                    :label="item.name"
+                    :value="item.name"
+                  />
+                </el-select>
               </div>
             </div>
           </div>
 
-          <div class="screen-item">
+          <div v-if="isFold" class="screen-item">
             <div class="echarts-time">
-              <div>打印数量</div>
+              <div>打印数量：</div>
               <div class="echarts-input-right">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.print_count_start" :disabled="listQuery.phone!=''" type="text" placeholder="张" @input="numberOriginalPrice($event,'print_count_start')"/>
+                <el-input
+                  v-model="listQuery.print_count_start"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="张"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'print_count_start')"
+                />
               </div>
               <div style="margin-left:18px;">至</div>
               <div class="echarts-input-left">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.print_count_end" :disabled="listQuery.phone!=''" type="text" placeholder="张" @input="numberOriginalPrice($event,'print_count_end')"/>
+                <el-input
+                  v-model="listQuery.print_count_end"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="张"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'print_count_end')"
+                />
               </div>
             </div>
           </div>
-          <div class="screen-item">
+          <div v-if="isFold" class="screen-item">
             <div class="echarts-time">
-              <div class="title-right">行业<el-tooltip class="item" effect="dark" placement="right">
-                <div slot="content" class="tooltip-content-box">
-                  根据用户保存的标签内容划分的行业</div>
-                <span style="padding-right:16px"><img src="@/assets/img/i-icon.png" class="i-icon-header" alt=""></span>
-              </el-tooltip></div>
+              <div class="title-right">
+                行业：
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <div slot="content" class="tooltip-content-box">根据用户保存的标签内容划分的行业</div>
+                  <span style="padding-right:16px">
+                    <img src="@/assets/img/i-icon.png" class="i-icon-header" alt >
+                  </span>
+                </el-tooltip>
+              </div>
               <div class="echarts-select">
-                <el-select v-model="listQuery.industry_type" :disabled="listQuery.phone!=''" class="filter-item m_floatL" placeholder="请选择">
-                  <el-option v-for="(item) in industry" :key="item.id" :label="item.industry_name" :value="item.id" />
+                <el-select
+                  v-model="listQuery.industry_type"
+                  :disabled="listQuery.phone!=''"
+                  class="filter-item m_floatL"
+                  placeholder="请选择"
+                >
+                  <el-option
+                    v-for="(item) in industry"
+                    :key="item.id"
+                    :label="item.industry_name"
+                    :value="item.id"
+                  />
                 </el-select>
               </div>
             </div>
           </div>
-          <div class="screen-item">
+          <div v-if="isFold" class="screen-item">
             <div class="echarts-time">
-              <div>打印次数</div>
+              <div>打印次数：</div>
               <div class="echarts-input-right">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.print_times_start" :disabled="listQuery.phone!=''" type="text" placeholder="次" @input="numberOriginalPrice($event,'print_times_start')"/>
+                <el-input
+                  v-model="listQuery.print_times_start"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="次"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'print_times_start')"
+                />
               </div>
               <div style="margin-left:18px;">至</div>
               <div class="echarts-input-left">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.print_times_end" :disabled="listQuery.phone!=''" type="text" placeholder="次" @input="numberOriginalPrice($event,'print_times_end')"/>
+                <el-input
+                  v-model="listQuery.print_times_end"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="次"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'print_times_end')"
+                />
               </div>
             </div>
           </div>
-          <div class="screen-item">
+          <div v-if="isFold" class="screen-item">
             <div class="echarts-time">
-              <div class="title-right">打印尺寸</div>
+              <div class="title-right">打印尺寸：</div>
               <div class="echarts-input-right-1">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.width_start" :disabled="listQuery.phone!=''" type="text" placeholder="宽" @input="numberOriginalPrice($event,'width_start')"/>
+                <el-input
+                  v-model="listQuery.width_start"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="宽"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'width_start')"
+                />
               </div>
-              <div style="margin-left:9px;">~</div>
+              <div style="margin-left:9px;">×</div>
               <div class="echarts-input-right-2">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.width_end" :disabled="listQuery.phone!=''" type="text" placeholder="宽" @input="numberOriginalPrice($event,'width_end')"/>
+                <el-input
+                  v-model="listQuery.width_end"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="宽"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'width_end')"
+                />
               </div>
               <div style="margin-left:9px;">至</div>
               <div class="echarts-input-left-1">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.height_start" :disabled="listQuery.phone!=''" placeholder="高" type="text" @input="numberOriginalPrice($event,'height_start')"/>
+                <el-input
+                  v-model="listQuery.height_start"
+                  :disabled="listQuery.phone!=''"
+                  placeholder="高"
+                  type="text"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'height_start')"
+                />
               </div>
-              <div style="margin-left:9px;">~</div>
+              <div style="margin-left:9px;">×</div>
               <div class="echarts-input-left-2">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.height_end" :disabled="listQuery.phone!=''" placeholder="高" type="text" @input="numberOriginalPrice($event,'height_end')"/>
+                <el-input
+                  v-model="listQuery.height_end"
+                  :disabled="listQuery.phone!=''"
+                  placeholder="高"
+                  type="text"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'height_end')"
+                />
               </div>
             </div>
           </div>
           <div class="screen-item">
             <div class="echarts-time">
-              <div>打印面积</div>
+              <div>打印面积：</div>
               <div class="echarts-input-right">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.print_area_start" :disabled="listQuery.phone!=''" type="text" placeholder="m²" @input="numberOriginalPrice($event,'print_area_start')"/>
+                <el-input
+                  v-model="listQuery.print_area_start"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="m²"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'print_area_start')"
+                />
               </div>
               <div style="margin-left:18px;">至</div>
               <div class="echarts-input-left">
-                <el-input @keyup.native.enter="onSearchData" v-model="listQuery.print_area_end" :disabled="listQuery.phone!=''" type="text" placeholder="m²" @input="numberOriginalPrice($event,'print_area_end')"/>
+                <el-input
+                  v-model="listQuery.print_area_end"
+                  :disabled="listQuery.phone!=''"
+                  type="text"
+                  placeholder="m²"
+                  @keyup.native.enter="onSearchData"
+                  @input="numberOriginalPrice($event,'print_area_end')"
+                />
               </div>
             </div>
           </div>
           <div class="screen-item">
             <div class="search">
               <div class="search-list searchbtn">
-                <el-button type="primary" class="m_search" @click="onSearchData" :disabled="loading">查询</el-button>
+                <el-button
+                  :disabled="loading"
+                  type="primary"
+                  class="m_search"
+                  @click="onSearchData"
+                >查询</el-button>
                 <div class="search-reset">
                   <el-button type="primary" @click="resetData">
                     <i class="iconfont iconzhongzhimima" style="margin-right:5px;" />重置
                   </el-button>
+                </div>
+                <div class="fold" @click="isFold = !isFold">
+                  <i :class="isFold ? 'iconfont iconshouqi' : 'iconfont iconzhankai'" />
+                  {{ isFold ? '收起': '展开' }}
                 </div>
               </div>
             </div>
@@ -247,7 +420,6 @@
         <el-table
           v-loading="loading"
           ref="singleTable"
-
           :data="tableLists"
           :default-sort="{prop: 'total_load_times', order: 'descending'}"
           highlight-current-row
@@ -256,77 +428,88 @@
           class="table"
           @sort-change="sortChange"
         >
-          <el-table-column property="nick_name" label="用户名" :show-overflow-tooltip="true" />
+          <el-table-column :show-overflow-tooltip="true" property="nick_name" label="用户名" />
           <el-table-column property="phone" label="手机号" />
-          <el-table-column
-            sortable
-            property="total_load_times">
+          <el-table-column sortable property="total_load_times">
             <template slot="header" slot-scope="scope">
-              <span><el-tooltip class="item" effect="dark" placement="right">
-                <div slot="content" class="tooltip-content-box">
-                  指统计用户访问时间段内启动DLabel软件的次数</div>
-                <span style="padding-right:16px">访问次数<img src="@/assets/img/i-icon.png" class="i-icon-header" alt=""></span>
-              </el-tooltip></span>
+              <span>
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <div slot="content" class="tooltip-content-box">指统计用户访问时间段内启动DLabel软件的次数</div>
+                  <span style="padding-right:16px">
+                    访问次数
+                    <img src="@/assets/img/i-icon.png" class="i-icon-header" alt >
+                  </span>
+                </el-tooltip>
+              </span>
             </template>
-            <template slot-scope="scope" >
+            <template slot-scope="scope">
               <span>{{ scope.row.total_load_times }}</span>
             </template>
           </el-table-column>
-          <el-table-column
-            width="180"
-            sortable
-            property="total_print_area">
+          <el-table-column width="180" sortable property="total_print_area">
             <template slot="header" slot-scope="scope">
-              <span><el-tooltip class="item" effect="dark" placement="right">
-                <div slot="content" class="tooltip-content-box">
-                  指统计用户从注册时间到当前时间的打印面积，打印面积(m²)=宽*高*打印数量</div>
-                <span style="padding-right:16px">打印面积(m²)<img src="@/assets/img/i-icon.png" class="i-icon-header" alt=""></span>
-              </el-tooltip></span>
+              <span>
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <div
+                    slot="content"
+                    class="tooltip-content-box"
+                  >指统计用户从注册时间到当前时间的打印面积，打印面积(m²)=宽*高*打印数量</div>
+                  <span style="padding-right:16px">
+                    打印面积(m²)
+                    <img src="@/assets/img/i-icon.png" class="i-icon-header" alt >
+                  </span>
+                </el-tooltip>
+              </span>
             </template>
-            <template slot-scope="scope" >
+            <template slot-scope="scope">
               <span>{{ scope.row.total_print_area.toFixed(4) }}</span>
             </template>
           </el-table-column>
-        <el-table-column
-            sortable
-            property="total_print_times">
+          <el-table-column sortable property="total_print_times">
             <template slot="header" slot-scope="scope">
-              <span><el-tooltip class="item" effect="dark" placement="right">
-                <div slot="content" class="tooltip-content-box">
-                  指统计用户从注册是按到当前时间的打印次数，点击”打印”按钮记为1次</div>
-                <span style="padding-right:16px">打印次数<img src="@/assets/img/i-icon.png" class="i-icon-header" alt=""></span>
-              </el-tooltip></span>
+              <span>
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <div slot="content" class="tooltip-content-box">指统计用户从注册是按到当前时间的打印次数，点击”打印”按钮记为1次</div>
+                  <span style="padding-right:16px">
+                    打印次数
+                    <img src="@/assets/img/i-icon.png" class="i-icon-header" alt >
+                  </span>
+                </el-tooltip>
+              </span>
             </template>
-            <template slot-scope="scope" >
+            <template slot-scope="scope">
               <span>{{ scope.row.total_print_times }}</span>
             </template>
           </el-table-column>
-          <el-table-column
-            sortable
-            property="total_print_count">
+          <el-table-column sortable property="total_print_count">
             <template slot="header" slot-scope="scope">
-              <span><el-tooltip class="item" effect="dark" placement="right">
-                <div slot="content" class="tooltip-content-box">
-                  指统计用户从注册是按到当前时间的打印数量</div>
-                <span style="padding-right:16px">打印数量<img src="@/assets/img/i-icon.png" class="i-icon-header" alt=""></span>
-              </el-tooltip></span>
+              <span>
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <div slot="content" class="tooltip-content-box">指统计用户从注册是按到当前时间的打印数量</div>
+                  <span style="padding-right:16px">
+                    打印数量
+                    <img src="@/assets/img/i-icon.png" class="i-icon-header" alt >
+                  </span>
+                </el-tooltip>
+              </span>
             </template>
-            <template slot-scope="scope" >
+            <template slot-scope="scope">
               <span>{{ scope.row.total_print_count }}</span>
             </template>
           </el-table-column>
-          <el-table-column
-            width="180"
-            sortable
-            property="day_percent_print">
+          <el-table-column width="180" sortable property="day_percent_print">
             <template slot="header" slot-scope="scope">
-              <span><el-tooltip class="item" effect="dark" placement="right">
-                <div slot="content" class="tooltip-content-box">
-                  指在访问时间段内，打印数量/使用DLabel的天数</div>
-                <span style="padding-right:16px">平均每天打印数量<img src="@/assets/img/i-icon.png" class="i-icon-header" alt=""></span>
-              </el-tooltip></span>
+              <span>
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <div slot="content" class="tooltip-content-box">指在访问时间段内，打印数量/使用DLabel的天数</div>
+                  <span style="padding-right:16px">
+                    平均每天打印数量
+                    <img src="@/assets/img/i-icon.png" class="i-icon-header" alt >
+                  </span>
+                </el-tooltip>
+              </span>
             </template>
-            <template slot-scope="scope" >
+            <template slot-scope="scope">
               <span>{{ scope.row.day_percent_print.toFixed(0) }}</span>
             </template>
           </el-table-column>
@@ -339,11 +522,24 @@
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" placement="top">
                   <div slot="content" class="tooltip-content-box">
-                    <img v-if="row.sign_type" :src="require( `@/assets/img/${row.sign_type}.png`)" style="width:13px;cursor: pointer;" alt="">
+                    <img
+                      v-if="row.sign_type"
+                      :src="require( `@/assets/img/${row.sign_type}.png`)"
+                      style="width:13px;cursor: pointer;"
+                      alt
+                    >
                     <span class="tooltip-flag-text">{{ row.sign_content }}</span>
-                  <div class="tooltip-flag-content" style="max-width:300px;">备注内容：{{ row.mark_content }}</div></div>
-                  <img v-if="row.sign_type" :src="require( `@/assets/img/${row.sign_type}.png`)" style="width:19px;position:absolute;height:20px;cursor: pointer;margin-top:2px;right:50px" alt="">
-
+                    <div
+                      class="tooltip-flag-content"
+                      style="max-width:300px;"
+                    >备注内容：{{ row.mark_content }}</div>
+                  </div>
+                  <img
+                    v-if="row.sign_type"
+                    :src="require( `@/assets/img/${row.sign_type}.png`)"
+                    style="width:19px;position:absolute;height:20px;cursor: pointer;margin-top:2px;right:50px"
+                    alt
+                  >
                 </el-tooltip>
               </div>
             </template>
@@ -425,7 +621,7 @@ import {
   printer_brandById,
   print_info
 } from '@/api/api-python'
-
+import axios from 'axios'
 import moment from 'moment'
 export default {
   name: 'ComplexTable',
@@ -505,7 +701,9 @@ export default {
       printerBrands: [],
       currentCid: -1,
       selectDate: [],
-
+      isFold: true, // 展开true折叠false
+      phoneList: [],
+      phoneCopyList: [],
       listQuery: {
         start_time: '', // 起始时间       默认七天前的现在时间
         end_time: '', // 截止时间       默认当前时间
@@ -517,6 +715,7 @@ export default {
         printer_brand: '', //  打印机品牌     默认全部=0，int
         printer_type: '', //  打印机型号     默认全部=0，int
         phone: '', // 手机号         默认为None
+        area_num: '+86',
         load_times_start: '', //  最少启动次数   默认为0
         load_times_end: '', //  最大启动次数   默认为0
         print_count_start: '', //  最少打印量     默认为0
@@ -542,7 +741,7 @@ export default {
         }
         var name = ''
         for (var i = 0; i < this.eqs.length; i++) {
-          if (this.eqs[i].id == index) {
+          if (this.eqs[i].id === index) {
             name = this.eqs[i].name
           }
         }
@@ -551,45 +750,47 @@ export default {
     }
   },
   created() {
-    setTimeout(() => {
-      console.log(this.listQuery)
-    }, 2000);
     // this.chooseTime(3)
     // 获取行业
-    industry_type().then(res => {
+    industry_type().then((res) => {
       this.industry = res.results
       // this.industry.splice(0, 0, { id: '', industry_name: '全部' })
     })
 
     // 获取设备类型
-    open_company_list().then(res => {
+    open_company_list().then((res) => {
       this.companys = res.data
       this.companys.splice(0, 0, { id: '', shortName: '全部' })
       // 获取品牌
-      printer_brand().then(res => {
+      printer_brand().then((res) => {
         this.printers = res.results
         // this.printers.splice(0, 0, { id: '', name: '全部' })
-        printer_brandById({ id: 0 }).then(res => {
-          this.printerBrands = res.results;
+        printer_brandById({ id: 0 }).then((res) => {
+          this.printerBrands = res.results
           // this.searchData();
-        });
+        })
       })
     })
+    this.getAreaCode()
   },
   methods: {
-    openDate(){
+    openDate() {
       this.$refs['date-picker'].focus()
     },
     changePrinter(id) {
       this.listQuery.printer_type = ''
-      printer_brandById({ id: this.listQuery.printer_brand?this.listQuery.printer_brand:0 }).then(res => {
+      printer_brandById({
+        id: this.listQuery.printer_brand ? this.listQuery.printer_brand : 0
+      }).then((res) => {
         this.printerBrands = res.results
       })
     },
 
     numberOriginalPrice(value, item) {
       setTimeout(() => {
-         this.listQuery[item] = (value.match(/^[1-9]([0-9])*/g) ? parseInt(value.match(/^[1-9]([0-9])*/g)[0]) : '')
+        this.listQuery[item] = value.match(/^[1-9]([0-9])*/g)
+          ? parseInt(value.match(/^[1-9]([0-9])*/g)[0])
+          : ''
       }, 0)
     },
     handleSizeChangeData(val) {
@@ -601,34 +802,64 @@ export default {
       this.searchData()
     },
     sortChange(val) {
-      if (val.order == 'descending') this.listQuery.ordering = '-' + val.prop
+      if (val.order === 'descending') this.listQuery.ordering = '-' + val.prop
       else this.listQuery.ordering = val.prop
       this.searchData()
     },
-    onSearchData(){
+    onSearchData() {
       this.listQuery.page = 1
       this.searchData()
     },
     searchData() {
-      if (this.listQuery.load_times_start !== '' && this.listQuery.load_times_end !== '' && this.listQuery.load_times_end < this.listQuery.load_times_start) {
+      if (
+        this.listQuery.load_times_start !== '' &&
+        this.listQuery.load_times_end !== '' &&
+        this.listQuery.load_times_end < this.listQuery.load_times_start
+      ) {
         this.$message.warning('请正确输入访问数量区间')
         return
-      } else if (this.listQuery.print_count_start !== '' && this.listQuery.print_count_end !== '' && this.listQuery.print_count_end < this.listQuery.print_count_start) {
+      } else if (
+        this.listQuery.print_count_start !== '' &&
+        this.listQuery.print_count_end !== '' &&
+        this.listQuery.print_count_end < this.listQuery.print_count_start
+      ) {
         this.$message.warning('请正确输入打印数量区间')
         return
-      } else if (this.listQuery.print_times_start !== '' && this.listQuery.print_times_end !== '' && this.listQuery.print_times_end < this.listQuery.print_times_start) {
+      } else if (
+        this.listQuery.print_times_start !== '' &&
+        this.listQuery.print_times_end !== '' &&
+        this.listQuery.print_times_end < this.listQuery.print_times_start
+      ) {
         this.$message.warning('请正确输入打印次数区间')
         return
-      } else if (this.listQuery.print_area_start !== '' && this.listQuery.print_area_end !== '' && this.listQuery.print_area_end < this.listQuery.print_area_start) {
+      } else if (
+        this.listQuery.print_area_start !== '' &&
+        this.listQuery.print_area_end !== '' &&
+        this.listQuery.print_area_end < this.listQuery.print_area_start
+      ) {
         this.$message.warning('请正确输入打印面积区间')
         return
-      } else if (this.listQuery.day_percent_print_start !== '' && this.listQuery.day_percent_print_end !== '' && this.listQuery.day_percent_print_end < this.listQuery.day_percent_print_start) {
+      } else if (
+        this.listQuery.day_percent_print_start !== '' &&
+        this.listQuery.day_percent_print_end !== '' &&
+        this.listQuery.day_percent_print_end <
+          this.listQuery.day_percent_print_start
+      ) {
         this.$message.warning('请正确输入每日打印量区间')
         return
-      } else if (this.listQuery.width_start !== '' && this.listQuery.width_end !== '' && (parseInt(this.listQuery.width_end) < parseInt(this.listQuery.width_start))) {
+      } else if (
+        this.listQuery.width_start !== '' &&
+        this.listQuery.width_end !== '' &&
+        parseInt(this.listQuery.width_end) <
+          parseInt(this.listQuery.width_start)
+      ) {
         this.$message.warning('请正确输入打印尺寸的宽区间')
         return
-      } else if (this.listQuery.height_start !== '' && this.listQuery.height_end !== '' && this.listQuery.height_end < this.listQuery.height_start) {
+      } else if (
+        this.listQuery.height_start !== '' &&
+        this.listQuery.height_end !== '' &&
+        this.listQuery.height_end < this.listQuery.height_start
+      ) {
         this.$message.warning('请正确输入打印尺寸的高区间')
         return
       }
@@ -638,17 +869,24 @@ export default {
       //   this.listQuery.width_start = this.listQuery.width_end
       // }
       this.loading = true
-      var printer_brands = this.printers.filter(e => {
-        return e.id == this.listQuery.printer_brand&&this.listQuery.printer_brand!=''
+      var printer_brands = this.printers.filter((e) => {
+        return (
+          e.id === this.listQuery.printer_brand &&
+          this.listQuery.printer_brand !== ''
+        )
       })
-      if (printer_brands.length > 0) { this.listQuery.printer_brand = printer_brands[0].name }
-      print_info(this.listQuery).then(res => {
-        this.tableLists = res.results.results
-        this.loading = false
-        this.totalnumber = res.results.count
-      }).catch(err => {
-        this.loading = false
-      })
+      if (printer_brands.length > 0) {
+        this.listQuery.printer_brand = printer_brands[0].name
+      }
+      print_info(this.listQuery)
+        .then((res) => {
+          this.tableLists = res.results.results
+          this.loading = false
+          this.totalnumber = res.results.count
+        })
+        .catch(() => {
+          this.loading = false
+        })
     },
     changeTime() {
       this.listQuery.end_time = this.selectDate[1]
@@ -658,17 +896,11 @@ export default {
     chooseTime(time) {
       this.endTime = moment().format('YYYY-MM-DD')
       if (time === 'week') {
-        this.startTime = moment()
-          .subtract(7, 'days')
-          .format('YYYY-MM-DD')
+        this.startTime = moment().subtract(7, 'days').format('YYYY-MM-DD')
       } else if (time === 'month') {
-        this.startTime = moment()
-          .subtract(1, 'months')
-          .format('YYYY-MM-DD')
+        this.startTime = moment().subtract(1, 'months').format('YYYY-MM-DD')
       } else {
-        this.startTime = moment()
-          .subtract(3, 'months')
-          .format('YYYY-MM-DD')
+        this.startTime = moment().subtract(3, 'months').format('YYYY-MM-DD')
       }
       this.selectDate = [this.startTime, this.endTime]
       this.listQuery.start_time = this.startTime
@@ -692,7 +924,7 @@ export default {
       )
     },
     resetData() {
-      this.listQuery= {
+      this.listQuery = {
         start_time: '', // 起始时间       默认七天前的现在时间
         end_time: '', // 截止时间       默认当前时间
         industry_type: '', // 行业类别       默认全部=0，int
@@ -732,7 +964,7 @@ export default {
     },
     selectCompany(id, index) {
       this.listQuery.page = 1
-      this.listQuery.page_size = 10,
+      this.listQuery.page_size = 10
       this.currentIndex = index
       this.listQuery.company_id = id
       this.searchData()
@@ -751,27 +983,53 @@ export default {
         this.listapi,
         this.tempData[this.barIndex]
       )
+    },
+    // 获取手机区号集合
+    async getAreaCode() {
+      const res = await axios.get(
+        'https://dlabel.mydlabel.com/api/country/code.json'
+      )
+      const allCity = res.data.data.allCity.filter(
+        (value) =>
+          res.data.data.hotCity.filter(
+            (item) => item.phoneCode === value.phoneCode
+          ).length <= 0
+      )
+      this.phoneList = [...res.data.data.hotCity, ...allCity]
+      this.phoneList.forEach((value, index) => {
+        this.$set(value, 'phoneCode', `+${value.phoneCode}`)
+      })
+      this.phoneCopyList = this.phoneList
+    },
+    filterAreaCode(query) {
+      if (query) {
+        this.phoneList = this.phoneList.filter(
+          (value) => value.phoneCode.indexOf(query) !== -1 || value.zhName.indexOf(query) !== -1
+        )
+      } else {
+        this.phoneList = this.phoneCopyList
+      }
     }
   }
 }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-.tooltip-content-box{
+.tooltip-content-box {
   padding: 10px;
-  font-size:14px;
-  font-family:PingFangSC-Regular,PingFang SC;
-  font-weight:400;
-  color:rgba(255,255,255,1);
-  .tooltip-flag-text{
-
+  font-size: 14px;
+  font-family: PingFangSC-Regular, PingFang SC;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 1);
+  .tooltip-flag-text {
     margin-left: 4px;
   }
-  .tooltip-flag-content{
-    margin-top:6px;
+  .tooltip-flag-content {
+    margin-top: 6px;
   }
 }
-/deep/.table i, /deep/.table a{
-  margin-right: 0px!important;
+/deep/.table i,
+/deep/.table a {
+  margin-right: 0px !important;
 }
 .screen-box {
   display: flex;
@@ -785,12 +1043,18 @@ export default {
     font-weight: 400;
     color: rgba(102, 102, 102, 1);
     line-height: 32px;
-    .echarts-time{
-      &>div:first-child{
-        width:80px;
+    .echarts-time {
+      & > div:first-child {
+        width: 86px;
       }
       .title-right {
         width: 126px !important;
+      }
+      .areacode {
+        /deep/ .el-input__inner {
+          width: 92px;
+          margin-left: 0;
+        }
       }
     }
 
@@ -944,6 +1208,14 @@ export default {
 .search {
   .searchbtn {
     margin-left: 0px !important;
+    .fold {
+      color: #2274e5;
+      font-size: 14px;
+      cursor: pointer;
+      i {
+        margin: 0 10px 0 32px;
+      }
+    }
   }
 }
 .picture {

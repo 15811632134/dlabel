@@ -27,12 +27,10 @@ service.interceptors.request.use(
       // }
       config.headers.common.accessToken = getToken()
     }
-    console.log(config)
     return config
   },
   error => {
     // do something with request error
-    console.log(error) // for debug
     return Promise.reject(error)
   }
 )
@@ -49,9 +47,7 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    console.log(response)
     const res = response.data
-    console.log(res)
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 100) {
       Message({
@@ -89,7 +85,7 @@ service.interceptors.response.use(
             removeToken()
             window.location.reload()
           }, 2000)
-
+          break
         case 503:
           message = '授权超时,请重新登录!'
           setTimeout(() => {
@@ -98,8 +94,6 @@ service.interceptors.response.use(
           }, 2000)
       }
     }
-    console.log(error)
-    console.log('err' + error) // for debug
     if (!message) {
       message = error.message
     }

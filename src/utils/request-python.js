@@ -6,8 +6,8 @@ import { getToken, removeToken } from '@/utils/auth'
 // create an axios instance
 axios.defaults.withCredentials = true
 const service = axios.create({
-  baseURL: 'https://dlabeldata.ctaiot.com' // url = base url + request url
-  // baseURL: 'https://dlabeladminsapi.ctaiot.com' // url = base url + request url
+  // baseURL: 'https://dlabeldata.ctaiot.com' // url = base url + request url
+  baseURL: 'http://8.129.185.188:8000' // url = base url + request url
   // baseURL: 'http://120.77.45.112:9107', // url = base url + request url
   // baseURL: 'http://192.168.1.33:9107', // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
@@ -18,12 +18,10 @@ service.interceptors.request.use(
   config => {
     // do something before request is sent
 
-    console.log(config)
     return config
   },
   error => {
     // do something with request error
-    console.log(error) // for debug
     return Promise.reject(error)
   }
 )
@@ -40,9 +38,7 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    console.log(response)
     const res = response.data
-    console.log(res)
     // if the custom code is not 20000, it is judged as an error.
     if (res.status !== 200) {
       Message({
@@ -89,8 +85,6 @@ service.interceptors.response.use(
           }, 2000)
       }
     }
-    console.log(error)
-    console.log('err' + error) // for debug
     if (!message) {
       message = error.message
     }

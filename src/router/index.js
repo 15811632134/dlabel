@@ -67,7 +67,7 @@ export const constantRouterMap = [{
   meta: {
     title: '首页',
     icon: 'iconshouyebeifen',
-    isIndex:true
+    isIndex: true
   }
 },
 {
@@ -174,7 +174,23 @@ export const constantRouterMap = [{
         title: '用户分析',
         permission: 'data_center_user_analysis_view'
       }
-    },{
+    }, {
+      path: 'labelData',
+      component: () => import('@/views/datacenter/labelData'),
+      name: 'labelData',
+      meta: {
+        title: '标签分析',
+        permission: 'data_center_user_analysis_view'
+      }
+    }, {
+      path: 'industry',
+      component: () => import('@/views/datacenter/industry'),
+      name: 'industry',
+      meta: {
+        title: '行业分析',
+        permission: 'data_center_user_analysis_view'
+      }
+    }, {
       path: 'userInfoData',
       component: () => import('@/views/datacenter/userInfoData'),
       name: 'userInfoData',
@@ -184,7 +200,6 @@ export const constantRouterMap = [{
         permission: 'data_center_user_analysis_view'
       }
     }
-
 
   ],
   meta: {
@@ -213,7 +228,7 @@ export const constantRouterMap = [{
         title: '商品模板',
         permission: 'source_shop_template_manage_view'
       }
-    },{
+    }, {
       path: 'templateAdminEditShop',
       component: () => import('@/views/material/templateAdminEditShop'),
       name: 'templateAdminEditShop',
@@ -325,7 +340,7 @@ export const constantRouterMap = [{
         title: '首页',
         permission: 'advert_manage_banner_view'
       }
-    },{
+    }, {
       path: 'wheelImg-my',
       component: () => import('@/views/advertAdmin/wheelImg-my'),
       name: 'wheelImg-my',
@@ -431,24 +446,24 @@ export const constantRouterMap = [{
   redirect: '/behaviorAnalysis/clickData',
   children: [
     {
-    path: 'clickData',
-    component: () => import('@/views/behaviorAnalysis/clickData'),
-    name: 'clickData',
-    meta: {
-      title: '点击统计',
-      permission: 'user_click_total_view'
-    }
-  },
-  {
-    path: 'clickDataSet',
-    component: () => import('@/views/behaviorAnalysis/clickDataSet'),
-    name: 'clickDataSet',
-    meta: {
-      title: '配置',
-      permission: 'user_click_total_view'
+      path: 'clickData',
+      component: () => import('@/views/behaviorAnalysis/clickData'),
+      name: 'clickData',
+      meta: {
+        title: '点击统计',
+        permission: 'user_click_total_view'
+      }
     },
-    hidden: true
-  }
+    {
+      path: 'clickDataSet',
+      component: () => import('@/views/behaviorAnalysis/clickDataSet'),
+      name: 'clickDataSet',
+      meta: {
+        title: '配置',
+        permission: 'user_click_total_view'
+      },
+      hidden: true
+    }
   ],
   meta: {
     title: '行为分析',
