@@ -1,0 +1,24 @@
+.notice-message{
+  .notice-ul{
+    display: flex;
+    li{
+      width: 80px;
+      height: 32px;
+      cursor: pointer;
+      text-align: center;
+      line-height: 32px;
+      background: #FFFFFF;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 500;
+      color: #666666;
+      margin-right: 16px;
+      &.active{
+        color: #FFFFFF;
+        background: #2274E5;
+      }
+    }
+
+  }
+}

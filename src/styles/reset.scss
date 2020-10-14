@@ -1,0 +1,127 @@
+body,h1,h2,h3,h4,h5,h6,dl,dt,dd,ul,ol,li,th,td,p,blockquote,pre,form,egend,input,button,textarea,hr{margin:0;padding:0;}
+h1,h2,h3,h4,h5,h6{font-size:100%;}
+ul{list-style:none;}
+ul,ol{ padding:0px;}
+img{border:0;}
+button{border:none;}
+q:before,q:after{content:'';}
+abbr[title]{border-bottom:1px dotted;cursor:help;}
+cite,dfn,em,var{font-style:normal;}
+button,input,select,textarea{font-size:100%;}
+code,kbd,samp{font-family:"Courier New",monospace;}
+hr{border:none;height:1px;}
+a {
+  color: #555;
+
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+.m_floatL{
+  float:left;
+}
+.m_floatR{
+  float: right;
+}
+.rotate180{
+  transform:rotate(180deg);
+  -ms-transform:rotate(180deg);
+  -moz-transform:rotate(180deg);
+  -webkit-transform:rotate(180deg);
+  -o-transform:rotate(180deg);
+}
+.m_clearLR::after{
+  overflow: hidden;
+  content:'';
+  height:0;
+  visibility: hidden;
+  display: block;
+  clear: both;
+}
+.m_tran50{
+	margin-left: 50%;
+	transform: translateX(-50%);
+	-webkit-transform: translateX(-50%);
+	-moz-transform: translateX(-50%);
+	-ms-transform: translateX(-50%);
+	-o-transform: translateX(-50%);
+}
+.m_tranT50{
+	margin-top: 50%;
+	transform: translateY(-50%);
+	-webkit-transform: translateY(-50%);
+	-moz-transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+	-o-transform: translateY(-50%);
+}
+body{
+  font-family: '微软雅黑';
+  font-size:12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.textLine{
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.textLineTwo{
+  overflow:hidden;
+
+text-overflow:ellipsis;
+
+display:-webkit-box;
+
+-webkit-box-orient:vertical;
+
+-webkit-line-clamp:2;
+
+}
+.fixed{
+  position: fixed !important;
+}
+
+// *{
+//   -webkit-touch-callout:none;  /*系统默认菜单被禁用*/
+//       -webkit-user-select:none; /*webkit浏览器*/
+//       -khtml-user-select:none; /*早期浏览器*/
+//       -moz-user-select:none; /*火狐*/
+//       -ms-user-select:none;  /*IE10*/
+//       user-select:none;
+
+// }
+// *{-webkit-tap-highlight-color: rgba(0,0,0,0);-webkit-tap-highlight-color:transparent;}
+
+input{
+  -webkit-user-select: auto !important;
+}
+.whiteBox{
+  position: fixed;
+  height:1.7rem;
+  top:0px;
+  width:100%;
+  background: #fff;
+  z-index: 1;
+}
+.whiteBoxSearch{
+  position: fixed;
+  height:2.9rem;
+  top:0px;
+  width:100%;
+  background: #fff;
+  z-index: 1;
+}
+.mint-indicator-mask{
+  z-index: 9999999 !important;
+}
+.betweenFlex{
+  display: flex;
+  justify-content: space-between;
+}
+.marginRight30{
+  margin-right:30px !important;
+}
+.marginRight0{
+  margin-right:0px !important;
+}
