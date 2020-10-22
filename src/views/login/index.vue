@@ -476,6 +476,7 @@ $light_gray: #eee;
 
 <script>
 import axios from 'axios'
+
 export default {
   name: 'Login',
   data() {
@@ -528,7 +529,8 @@ export default {
       loading: false,
       getMessageText: '获取验证码',
       passwordType: 'password',
-      redirect: undefined
+      redirect: undefined,
+      test:'123234234qw'
     }
   },
   watch: {
@@ -540,8 +542,8 @@ export default {
     }
   },
   created() {
-    this.baseUrl = process.env.BASE_API
 
+    this.baseUrl = process.env.BASE_API
   },
   methods: {
     resetCode() {

@@ -7,8 +7,8 @@ import { getToken, removeToken } from '@/utils/auth'
 axios.defaults.withCredentials = true
 const service = axios.create({
   // baseURL: 'https://dlabeldata.ctaiot.com' // url = base url + request url
-  baseURL: 'http://8.129.185.188:8000' // url = base url + request url
-  // baseURL: 'http://120.77.45.112:9107', // url = base url + request url
+  // baseURL: 'http://8.129.185.188:8000' // url = base url + request url
+  baseURL: 'https://dlabeldata.mydlabel.com', // url = base url + request url
   // baseURL: 'http://192.168.1.33:9107', // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   // timeout: 5000 // request timeout
@@ -17,7 +17,6 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     // do something before request is sent
-
     return config
   },
   error => {

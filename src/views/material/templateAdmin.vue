@@ -344,7 +344,7 @@ export default {
     },
     addDDLs(){
       templatesystemInserts({json:JSON.stringify(this.ddls),templateTypeId: this.listQuery.templateTypeId}).then(res=>{
-        if(res.code==100){
+        if(res.code == 100){
           this.openAddTemp = false
           this.getListData(Object.assign({ pageNo: this.currentpage, pageSize: this.pagesize }, this.listQuery), templateList)
           this.$message({

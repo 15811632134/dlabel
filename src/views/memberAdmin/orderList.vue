@@ -613,7 +613,7 @@
       <el-pagination
         :current-page.sync="currentpage"
         :page-sizes="[10, 30, 50, 100]"
-        :page-size="10"
+        :page-size="listQuery.pageSize"
         :total="totalnumber"
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChangeFile"

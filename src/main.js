@@ -23,6 +23,9 @@ import './permission' // permission control
 import './mock' // simulation data
 
 import * as filters from './filters' // global filters
+
+window['setLoginToken'] = function (data){alert('123213')}
+
 Vue.prototype.resOk = 200
 Vue.mixin(mixin)
 Vue.use(Element, {

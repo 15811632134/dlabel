@@ -1835,7 +1835,7 @@ export function get_order_fields(query) {
     params: query
   })
 }
-// 获取订单列表的所有列
+// 模板分类排序
 export function templatetypeSort(query) {
   return request({
     url: `api/templatetype/update/sort.json`,

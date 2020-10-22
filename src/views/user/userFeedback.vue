@@ -769,7 +769,7 @@ export default {
       this.fdBoxIndex = index
       this.lookData = item
       this.backIndex = 0
-      this.$refs.singleTable.setCurrentRow(this.tableList[index])
+      // this.$refs.singleTable.setCurrentRow(this.tableList[index])
       this.activeIndex = index
     },
     seeInfo(item, index) {
@@ -779,7 +779,7 @@ export default {
       this.backIndex = 1
       this.msging = ''
       this.description = ''
-      this.$refs.singleTable.setCurrentRow(this.tableList[index])
+      // this.$refs.singleTable.setCurrentRow(this.tableList[index])
       this.activeIndex = index
       feedback_reply_list({ feedbackId: item.id }).then(res => {
         this.seeInfoData = res.data
@@ -932,20 +932,21 @@ export default {
         this.totalnumber = res.data.total
          document.addEventListener('keydown',(event)=>{
 
-          if(event.keyCode == 38){
+          if(event.keyCode == 38&&this.fdBoxIndex>0){
+
             if(this.selectIndex == 0){
               this.changeLook(this.tableList[this.fdBoxIndex-1] ,this.fdBoxIndex-1)
             }else if(this.selectIndex == 1){
-              this.changeOp(this.tableList[this.fdBoxIndex-1] ,this.fdBoxIndex-1)
+              this.changeOp(this.tableList[this.fdBoxIndex-1].id ,this.fdBoxIndex-1)
             }else{
               this.seeInfo(this.tableList[this.fdBoxIndex-1] ,this.fdBoxIndex-1)
             }
-          }else if(event.keyCode == 40){
+          }else if(event.keyCode == 40&&this.fdBoxIndex<this.tableList.length-1){
 
             if(this.selectIndex == 0){
               this.changeLook(this.tableList[this.fdBoxIndex+1] ,this.fdBoxIndex+1)
             }else if(this.selectIndex == 1){
-              this.changeOp(this.tableList[this.fdBoxIndex+1] ,this.fdBoxIndex+1)
+              this.changeOp(this.tableList[this.fdBoxIndex+1].id ,this.fdBoxIndex+1)
             }else{
               this.seeInfo(this.tableList[this.fdBoxIndex+1] ,this.fdBoxIndex+1)
             }
@@ -974,7 +975,7 @@ export default {
     },
     rowClick(row,index,index2) {
       this.changeLook(row,row.index)
-      this.$refs.singleTable.setCurrentRow(this.tableList[this.activeIndex])
+      // this.$refs.singleTable.setCurrentRow(this.tableList[this.activeIndex])
     }
   }
 }

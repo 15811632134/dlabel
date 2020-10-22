@@ -180,7 +180,7 @@ export const constantRouterMap = [{
       name: 'labelData',
       meta: {
         title: '标签分析',
-        permission: 'data_center_user_analysis_view'
+        permission: 'data_center_label_tag_view'
       }
     }, {
       path: 'industry',
@@ -188,7 +188,7 @@ export const constantRouterMap = [{
       name: 'industry',
       meta: {
         title: '行业分析',
-        permission: 'data_center_user_analysis_view'
+        permission: 'data_center_industry_type_view'
       }
     }, {
       path: 'userInfoData',
