@@ -45,7 +45,6 @@
       highlight-current-row
       style="width: 100%"
       class="table"
-      @current-change="handleCurrentChange"
     >
       <el-table-column type="index" label="序号" width="80" />
       <el-table-column property="account" label="账号" width="200" />
@@ -91,7 +90,7 @@
             </el-popover>
           </el-tooltip>
           <el-tooltip class="item" effect="dark" content="删除" placement="top">
-            <i class="iconshanchulanse  iconfont" @click="confirmDelete(scope.row)" />
+            <i class="iconshanchulanse  iconfont" @click="confirmDeleteAc(scope.row)" />
           </el-tooltip>
         </template>
       </el-table-column>
@@ -180,6 +179,7 @@
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
+
       />
     </div>
   </div>
@@ -294,7 +294,7 @@ export default {
   },
   mounted() {},
   methods: {
-    confirmDelete(item){
+    confirmDeleteAc(item){
       const h = this.$createElement;
       this.$msgbox({
         title: "消息",
@@ -342,9 +342,6 @@ export default {
     },
     setCurrent(row) {
       this.$refs.singleTable.setCurrentRow(row)
-    },
-    handleCurrentChange(val) {
-      this.currentRow = val
     },
     confirmEdit(row) {
       this.isedit = true

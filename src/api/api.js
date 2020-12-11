@@ -441,7 +441,7 @@ export function icontypeUpdate(query) {
   return request({
     url: `api/icontype/update/${query.id}`,
     method: 'put',
-    params: query
+    data: qs.stringify(query)
   })
 }
 
@@ -533,6 +533,15 @@ export function registerDetails(query) {
 export function registerList(query) {
   return request({
     url: 'api/register/list.json',
+    method: 'post',
+    data: qs.stringify(query)
+  })
+}
+
+// 数据汇总
+export function registerSummary(query) {
+  return request({
+    url: 'api/register/summary.json',
     method: 'post',
     data: qs.stringify(query)
   })
@@ -849,7 +858,18 @@ export function activeList(query) {
     data: qs.stringify(query)
   })
 }
-// 打印机统计
+
+
+// 数据汇总
+export function editSummary(query) {
+  return request({
+    url: 'api/edit/summary.json',
+    method: 'post',
+    data: qs.stringify(query)
+  })
+}
+
+// 活跃统计
 export function activeDetail(query) {
   return request({
     url: 'api/edit/detail.json',
@@ -857,7 +877,9 @@ export function activeDetail(query) {
     data: qs.stringify(query)
   })
 }
-// 打印机统计（导出）
+
+
+// 活跃统计（导出）
 export function activeDetails(query) {
   return request({
     url: 'api/edit/details.json',
@@ -970,6 +992,24 @@ export function create_order(data) {
     params: data
   })
 }
+// 校验密码
+export function check_password(data) {
+  return request({
+    url: '/api/login/check_password.json',
+    method: 'get',
+    params: data
+  })
+}
+// 退款
+export function refund(data) {
+  return request({
+    url: '/api/refund/refund.json',
+    method: 'get',
+    params: data
+  })
+}
+
+
 
 export function printer_brand_type_add(data) {
   return request({
@@ -1835,7 +1875,7 @@ export function get_order_fields(query) {
     params: query
   })
 }
-// 模板分类排序
+// 获取订单列表的所有列
 export function templatetypeSort(query) {
   return request({
     url: `api/templatetype/update/sort.json`,
@@ -1874,6 +1914,40 @@ export function dlabeldatadocumentInterval(query) {
     url: `api/dlabeldatadocument/interval.json`,
     method: 'get',
     params: query
+  })
+}
+// 区间趋势
+export function dlabeldatadocumentTrend(query) {
+  return request({
+    url: `api/dlabeldatadocument/trend.json`,
+    method: 'get',
+    params: query
+  })
+}
+// 上传走势
+export function dlabeldatadocumentUpload_trend(query) {
+  return request({
+    url: `api/dlabeldatadocument/upload_trend.json`,
+    method: 'get',
+    params: query
+  })
+}
+
+
+// 获取扫码新建打印机列表信息
+export function scanList(data) {
+  return request({
+    url: '/api/scan/list.json',
+    method: 'get',
+    params: data
+  })
+}
+// 修改扫码新建打印机信息
+export function scanUpdate(data) {
+  return request({
+    url: '/api/scan/update.json',
+    method: 'put',
+    data: qs.stringify(data)
   })
 }
 // 数量区间占比
@@ -2113,4 +2187,28 @@ export function templatebackgroundInserts(query) {
   })
 }
 
+// 获取国际化手机区号
+export function getCountryCode(query) {
+  return request({
+    url: 'api/country/code.json',
+    method: 'get',
+    params: query
+  })
+}
+// 校验手机号
+export function check_phone(query) {
+  return request({
+    url: 'api/user/check_phone.json',
+    method: 'get',
+    params: query
+  })
+}
 
+// 修改顺序
+export function icontypeSort(data) {
+  return request({
+    url: '/api/icontype/update/sort.json',
+    method: 'post',
+    data: qs.stringify(data)
+  })
+}

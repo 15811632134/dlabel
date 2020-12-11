@@ -59,6 +59,9 @@
 
       <el-table-column property="address" label="操作" width="200">
         <template slot-scope="{row}">
+          <el-tooltip class="item" effect="dark" content="驳回" placement="top">
+            <i class="iconfont iconbohui" @click="approvalOut(row)" />
+          </el-tooltip>
           <el-tooltip class="item" effect="dark" content="审核" placement="top">
             <i class="iconfont iconshenhe" @click="approval(row)" />
           </el-tooltip>
@@ -166,13 +169,33 @@ export default {
     this.getListData(Object.assign({ pageNo: this.currentpage, pageSize: this.pagesize }, this.listQuery), ad_list)
   },
   methods: {
+    approvalOut(item){
+      this.$confirm('您确定要驳回该数据吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        beforeClose: async(action, instance, done) => {
+          if (action === 'confirm') {
+            ad_update({ id: item.id, type: this.listQuery.type,verify:2}).then(res => {
+              this.getListData(Object.assign({ pageNo: this.currentpage, pageSize: this.pagesize }, this.listQuery), ad_list)
+              this.$message.success('已驳回')
+            })
+            done()
+          } else {
+            done()
+          }
+        }
+      })
+
+
+    },
     changeType(type) {
       this.listQuery.type = type
       this.listQuery.pageNo = 1
       this.getListData(Object.assign({ pageNo: this.currentpage, pageSize: this.pagesize }, this.listQuery), ad_list)
     },
     approval(item) {
-      ad_update({ id: item.id, type: this.listQuery.type }).then(res => {
+      ad_update({ id: item.id, type: this.listQuery.type,verify:1 }).then(res => {
         this.getListData(Object.assign({ pageNo: this.currentpage, pageSize: this.pagesize }, this.listQuery), ad_list)
         this.$message.success('审批成功')
       })

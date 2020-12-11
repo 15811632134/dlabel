@@ -49,7 +49,9 @@
                   <el-button type="primary" @click="comfirmShows">确 定</el-button>
                 </span>
               </el-dialog>
-              <em @click="openScreen"><i class="iconfont iconshezhibeifen" />配置</em>
+              <em @click="openScreen">
+                <i class="iconfont iconshezhibeifen" />配置
+              </em>
             </span>
           </div>
           <div style="display:flex">
@@ -96,7 +98,9 @@
               <el-button type="primary" @click="comfirmShows">确 定</el-button>
             </span>
           </el-dialog>
-          <em @click="openScreen"><i class="iconfont iconshezhibeifen" />配置</em>
+          <em @click="openScreen">
+            <i class="iconfont iconshezhibeifen" />配置
+          </em>
         </span>
       </div>
       <div class="chart">
@@ -155,11 +159,11 @@ import {
   industryPrint,
   industryCityUser,
   industryPrintSize,
-  industryPrintType
-} from '@/api/api-python'
-import { open_company_list } from '@/api/api'
-import moment from 'moment'
-import echarts from 'echarts'
+  industryPrintType,
+} from '@/api/api-python';
+import { open_company_list } from '@/api/api';
+import moment from 'moment';
+import echarts from 'echarts';
 export default {
   data() {
     return {
@@ -168,12 +172,12 @@ export default {
         '各行业打印量',
         '各省市行业用户数',
         '各行业耗材使用量',
-        '各行业打印机型号使用量'
+        '各行业打印机型号使用量',
       ],
       barIndex: 0,
       time: [
         moment().subtract(7, 'days').format('YYYY-MM-DD'),
-        moment().subtract(1, 'days').format('YYYY-MM-DD')
+        moment().subtract(1, 'days').format('YYYY-MM-DD'),
       ],
       tempTable: [1],
       tableLists: {
@@ -181,7 +185,7 @@ export default {
         data2: [],
         data3: [],
         data4: [],
-        data5: []
+        data5: [],
       },
       // 配置项列表
       configList: [],
@@ -193,157 +197,189 @@ export default {
       page_size: 10,
       options: {
         disabledDate(time) {
-          return time.getTime() > Date.now() - 8.64e7
-        }
+          return time.getTime() > Date.now() - 8.64e7;
+        },
+        shortcuts: [
+          {
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              end.setTime(end.getTime() - 24 * 60 * 60 * 1000);
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            },
+          },
+          {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              end.setTime(end.getTime() - 24 * 60 * 60 * 1000);
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            },
+          },
+          {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              end.setTime(end.getTime() - 24 * 60 * 60 * 1000);
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            },
+          },
+        ],
       },
       userList: {
         company_id: '',
-        ordering: ''
+        ordering: '',
       },
       screenShow: false,
       // 商户
       companys: [],
       // 商户id
       companyId: '',
-      tableData: [{}]
-    }
+      tableData: [{}],
+    };
   },
   created() {
-    this.getUserNumber()
-    this.getIndustryConfig()
-    this.getCompanyList()
+    this.getUserNumber();
+    this.getIndustryConfig();
+    this.getCompanyList();
   },
   methods: {
     // 点击排序
     sortChange(val) {
       if (val.order === 'descending') {
-        this.ordering = '-' + val.prop
+        this.ordering = '-' + val.prop;
       } else if (val.order === 'ascending') {
-        this.ordering = val.prop
+        this.ordering = val.prop;
       } else {
-        this.ordering = ''
+        this.ordering = '';
       }
       if (this.barIndex === 2) {
-        this.getindustryCityUser()
+        this.getindustryCityUser();
       } else if (this.barIndex === 3) {
-        this.getindustryPrintSize()
+        this.getindustryPrintSize();
       } else {
-        this.getindustryPrintType()
+        this.getindustryPrintType();
       }
     },
     // 获取商户信息
     async getCompanyList() {
-      const res = await open_company_list()
-      this.companys = res.data
-      this.companys.splice(0, 0, { id: '', shortName: '全部' })
+      const res = await open_company_list();
+      this.companys = res.data;
+      this.companys.splice(0, 0, { id: '', shortName: '全部' });
     },
     openScreen() {
-      this.screenShow = true
+      this.screenShow = true;
     },
     selectBarIndex(index) {
-      this.barIndex = index
-      this.page = 1
-      this.page_size = 10
-      this.currentpage = 1
+      this.barIndex = index;
+      this.page = 1;
+      this.page_size = 10;
+      this.currentpage = 1;
       if (index === 0) {
-        this.getUserNumber()
+        this.getUserNumber();
       } else if (index === 1) {
-        this.getindustryPrint()
+        this.getindustryPrint();
       } else if (index === 2) {
-        this.getindustryCityUser()
+        this.getindustryCityUser();
       } else if (index === 3) {
-        this.getindustryPrintSize()
+        this.getindustryPrintSize();
       } else {
-        this.getindustryPrintType()
+        this.getindustryPrintType();
       }
     },
     async getIndustryConfig() {
-      const res = await industryConfig()
-      this.configList = res.results
+      const res = await industryConfig();
+      this.configList = res.results;
       this.configList.forEach((value) => {
-        this.$set(value, 'flag', value.is_show === 1)
-      })
-      this.showConfigList = this.configList.filter((value) => value.flag)
+        this.$set(value, 'flag', value.is_show === 1);
+      });
+      this.showConfigList = this.configList.filter((value) => value.flag);
       this.allCheck =
         this.configList.filter((value) => value.flag).length ===
-        this.configList.length
+        this.configList.length;
     },
     async getUserNumber() {
-      this.tableLists.data1 = []
+      this.tableLists.data1 = [];
       const res = await industryAnalyze({
-        company_id: this.userList.company_id,
+        company_id: this.company_id,
         start_time: this.time[0],
-        end_time: this.time[1]
-      })
-      this.tableLists.data1 = res.results
-      this.initEcharts()
+        end_time: this.time[1],
+      });
+      this.tableLists.data1 = res.results;
+      this.initEcharts();
     },
     changeType(val) {
-      this.company_id = val
+      this.company_id = val;
       if (this.barIndex === 0) {
-        this.getUserNumber()
+        this.getUserNumber();
       } else if (this.barIndex === 1) {
-        this.getindustryPrint()
+        this.getindustryPrint();
       } else if (this.barIndex === 2) {
-        this.getindustryCityUser()
+        this.getindustryCityUser();
       } else if (this.barIndex === 3) {
-        this.getindustryPrintSize()
+        this.getindustryPrintSize();
       } else {
-        this.getindustryPrintType()
+        this.getindustryPrintType();
       }
     },
     // 时间变化
     handleChange() {
       if (this.barIndex === 0) {
-        this.getUserNumber()
+        this.getUserNumber();
       } else if (this.barIndex === 1) {
-        this.getindustryPrint()
+        this.getindustryPrint();
       } else if (this.barIndex === 2) {
-        this.getindustryCityUser()
+        this.getindustryCityUser();
       } else if (this.barIndex === 3) {
-        this.getindustryPrintSize()
+        this.getindustryPrintSize();
       } else {
-        this.getindustryPrintType()
+        this.getindustryPrintType();
       }
     },
     // 各行业打印量占比
     async getindustryPrint() {
-      this.tableLists.data1 = []
+      this.tableLists.data1 = [];
       const res = await industryPrint({
-        company_id: this.userList.company_id,
+        company_id: this.company_id,
         start_time: this.time[0],
-        end_time: this.time[1]
-      })
-      this.tableLists.data1 = res.results
-      this.initEcharts()
+        end_time: this.time[1],
+      });
+      this.tableLists.data1 = res.results;
+      this.initEcharts();
     },
     // 各省市行业用户数占比
     async getindustryCityUser() {
-      this.tableLists.data2 = []
+      this.tableLists.data2 = [];
       const res = await industryCityUser({
         page: this.page,
         page_size: this.page_size,
         company_id: this.company_id,
         ordering: this.ordering,
         start_time: this.time[0],
-        end_time: this.time[1]
-      })
-      this.tableLists.data2 = res.results.results
-      this.totalnumber = res.results.count
+        end_time: this.time[1],
+      });
+      this.tableLists.data2 = res.results.results;
+      this.totalnumber = res.results.count;
     },
     // 各行业耗材尺寸使用占比
     async getindustryPrintSize() {
-      this.tableLists.data2 = []
+      this.tableLists.data2 = [];
       const res = await industryPrintSize({
         page: this.page,
         page_size: this.page_size,
         company_id: this.company_id,
         ordering: this.ordering,
         start_time: this.time[0],
-        end_time: this.time[1]
-      })
-      this.tableLists.data2 = res.results.results
-      this.totalnumber = res.results.count
+        end_time: this.time[1],
+      });
+      this.tableLists.data2 = res.results.results;
+      this.totalnumber = res.results.count;
     },
     // 各行业打印机型号使用占比
     async getindustryPrintType() {
@@ -353,64 +389,64 @@ export default {
         company_id: this.company_id,
         ordering: this.ordering,
         start_time: this.time[0],
-        end_time: this.time[1]
-      })
-      this.tableLists.data2 = res.results.results
-      this.totalnumber = res.results.count
+        end_time: this.time[1],
+      });
+      this.tableLists.data2 = res.results.results;
+      this.totalnumber = res.results.count;
     },
     handleSizeChangeData(val) {
-      this.page_size = val
+      this.page_size = val;
       if (this.barIndex === 2) {
-        this.getindustryCityUser()
+        this.getindustryCityUser();
       } else if (this.barIndex === 3) {
-        this.getindustryPrintSize()
+        this.getindustryPrintSize();
       } else {
-        this.getindustryPrintType()
+        this.getindustryPrintType();
       }
     },
     handleCurrentChangeData(val) {
-      this.page = val
+      this.page = val;
       if (this.barIndex === 2) {
-        this.getindustryCityUser()
+        this.getindustryCityUser();
       } else if (this.barIndex === 3) {
-        this.getindustryPrintSize()
+        this.getindustryPrintSize();
       } else {
-        this.getindustryPrintType()
+        this.getindustryPrintType();
       }
     },
     // 全选
     allselect() {
       this.configList.forEach((value) => {
-        this.$set(value, 'flag', this.allCheck)
-      })
+        this.$set(value, 'flag', this.allCheck);
+      });
     },
     // 确定
     async comfirmShows() {
-      this.screenShow = false
+      this.screenShow = false;
       const is_select = this.configList
         .filter((value) => value.flag)
         .map((val) => val.industry_id)
-        .join(',')
+        .join(',');
       const un_select = this.configList
         .filter((value) => !value.flag)
         .map((val) => val.industry_id)
-        .join(',')
+        .join(',');
       const res = await setIndustryConfig({
         is_select,
-        un_select
-      })
+        un_select,
+      });
       if (res.status === 200) {
-        this.getIndustryConfig()
+        this.getIndustryConfig();
         if (this.barIndex === 0) {
-          this.getUserNumber()
+          this.getUserNumber();
         } else if (this.barIndex === 1) {
-          this.getindustryPrint()
+          this.getindustryPrint();
         } else if (this.barIndex === 2) {
-          this.getindustryCityUser()
+          this.getindustryCityUser();
         } else if (this.barIndex === 3) {
-          this.getindustryPrintSize()
+          this.getindustryPrintSize();
         } else {
-          this.getindustryPrintType()
+          this.getindustryPrintType();
         }
       }
     },
@@ -429,10 +465,10 @@ export default {
                 y: 0,
                 x2: 0,
                 y2: 1,
-                global: false
-              }
-            }
-          }
+                global: false,
+              },
+            },
+          },
         },
         legend: {
           right: 20,
@@ -443,8 +479,8 @@ export default {
           textStyle: {
             color: 'red',
             fontWeight: 'normal',
-            fontSize: 14
-          }
+            fontSize: 14,
+          },
         },
         xAxis: [
           {
@@ -453,21 +489,21 @@ export default {
               (value) => value.industry_type || value.print_count
             ),
             axisTick: {
-              show: false // 是否显示坐标轴轴线
+              show: false, // 是否显示坐标轴轴线
             },
             axisLabel: {
-              color: '#666666'
+              color: '#666666',
             },
             splitLine: {
-              show: false
+              show: false,
             },
             boundaryGap: true,
             axisLine: {
               // 坐标轴轴线相关设置。
               show: false,
-              inside: false
-            }
-          }
+              inside: false,
+            },
+          },
         ],
 
         yAxis: [
@@ -478,30 +514,33 @@ export default {
             axisLabel: {
               show: true,
               textStyle: {
-                color: '#C3C3C3'
-              }
+                color: '#C3C3C3',
+              },
             },
             axisLine: {
-              show: false
+              show: false,
             },
             axisTick: {
-              show: false
+              show: false,
             },
             splitLine: {
               lineStyle: {
                 color: 'rgba(131,101,101,0.2)',
-                type: 'dashed'
-              }
+                type: 'dashed',
+              },
             },
-            show: true
-          }
+            show: true,
+          },
         ],
         series: [
           {
             type: 'bar',
             barMaxWidth: 8,
             zlevel: 10,
-            data: this.barIndex === 0 ? this.tableLists.data1.map((value) => value.total_times) : this.tableLists.data1.map((value) => value.print_count),
+            data:
+              this.barIndex === 0
+                ? this.tableLists.data1.map((value) => value.total_times)
+                : this.tableLists.data1.map((value) => value.print_count),
             itemStyle: {
               normal: {
                 color: {
@@ -513,25 +552,25 @@ export default {
                   colorStops: [
                     {
                       offset: 0,
-                      color: '#2274E5'
+                      color: '#2274E5',
                     },
                     {
                       offset: 1,
-                      color: '#2274E5'
-                    }
-                  ]
+                      color: '#2274E5',
+                    },
+                  ],
                 },
-                barBorderRadius: [30, 30, 0, 0]
-              }
-            }
-          }
-        ]
-      }
-      const myChart = echarts.init(this.$refs.echarts)
-      myChart.setOption(options, true)
-    }
-  }
-}
+                barBorderRadius: [30, 30, 0, 0],
+              },
+            },
+          },
+        ],
+      };
+      const myChart = echarts.init(this.$refs.echarts);
+      myChart.setOption(options, true);
+    },
+  },
+};
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
 /deep/.el-table__fixed-right {

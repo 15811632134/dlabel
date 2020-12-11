@@ -9,7 +9,7 @@
         <em>{{ activeList.dayActiveUser }}</em>
         <p>
           昨日：
-          <span>
+          <span v-if="activeList.dayActivePersent">
             <i :class="{'active':activeList.dayActivePersent&&activeList.dayActivePersent.indexOf('-')!=-1}"/>
             {{ (activeList.dayActivePersent.replace('-','')*100).toFixed(2) }}%
           </span>
@@ -23,7 +23,7 @@
         <em>{{ activeList.weekActiveUser }}</em>
         <p>
           上周：
-          <span>
+          <span v-if="activeList.weekActivePersent">
             <i :class="{'active':activeList.weekActivePersent&&activeList.weekActivePersent.indexOf('-')!=-1}"/>
             {{ (activeList.weekActivePersent.replace('-','')*100).toFixed(2) }}%
           </span>
@@ -36,7 +36,7 @@
         <em>{{ activeList.monthActiveUser }}</em>
         <p>
           上月：
-          <span>
+          <span v-if="activeList.monthActivePersent">
             <i :class="{'active': activeList.monthActivePersent&&activeList.monthActivePersent.indexOf('-')!=-1}" />
             {{ (activeList.monthActivePersent.replace('-','')*100).toFixed(2) }}%
           </span>
@@ -141,12 +141,43 @@
     </div> -->
     <div class="datatable">
       <div class="table-export">
-        <span>数据说明</span>
+        <div class="dz-ul-box">
+        <ul>
+          <li  :class="{active:currentTypeAll==0}" @click="changeCurrentType(0)">
+            数据汇总
+          </li>
+          <li @click="changeCurrentType(1)"  :class="{active:currentTypeAll==1}">
+            详细数据
+          </li>
+        </ul>
+      </div>
         <div class="export" @click="handleDownload">
           <i class="iconfont iconxiazai" />导出
         </div>
       </div>
-      <el-table :data="tableList" border>
+      <el-table :data="tableListAll" border v-if="currentTypeAll==0">
+        <el-table-column type="index" label="序号" width="80" />
+        <el-table-column prop="companyName" label="友商" />
+        <el-table-column prop="dayCount" label="日活" />
+        <el-table-column prop="weekCount" label="周活" />
+        <el-table-column prop="monthCount" label="月活" />
+        <el-table-column prop="dayThanWeek" label="周活跃率" >
+          <template slot-scope="{row}">
+            <div>
+            {{ (parseFloat(row.dayThanWeek)*100).toFixed(2) }}%
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="dayThanMonth" label="月活跃率" >
+          <template slot-scope="{row}">
+            <div>
+            {{ (parseFloat(row.dayThanMonth)*100).toFixed(2) }}%
+            </div>
+          </template>
+        </el-table-column>
+
+      </el-table>
+      <el-table :data="tableList" border v-else>
         <el-table-column prop="time" label="日期" />
         <el-table-column prop="pc" label="PC" />
         <el-table-column prop="android" label="Android" />
@@ -155,7 +186,18 @@
         <el-table-column prop="total" label="总计" />
       </el-table>
     </div>
-    <div v-if="totalnumber > 10" class="pagination-container">
+    <div  class="pagination-container" v-if="currentTypeAll==0&&allTotle>10">
+      <el-pagination
+        :current-page.sync="currentpage"
+        :page-sizes="[10, 30, 50, 100]"
+        :page-size="10"
+        :total="allTotle"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
+    <div  class="pagination-container" v-else-if="currentTypeAll==1&&totalnumber>10">
       <el-pagination
         :current-page.sync="currentpage"
         :page-sizes="[10, 30, 50, 100]"
@@ -171,7 +213,7 @@
 
 <script>
 import VeLine from 'v-charts/lib/line.common'
-import { activeTotal,activeDetails,activeList, activeDetail, open_company_list } from '@/api/api'
+import { activeTotal,activeDetails,activeList, activeDetail, open_company_list,editSummary } from '@/api/api'
 import datacenter from '@/mixin/datacenter.js'
 export default {
   components: {
@@ -187,6 +229,10 @@ export default {
       activeList: [],
       dateType: '',
       dateStyle: 1,
+      exportDataAll:[],
+      tableListAll:[],
+      currentTypeAll:0,
+      allTotle:0,
       listQuery: { companyId: '', style: 1, code: 1, startTime: '2019-8-9', endTime: '2019-8-9', pageNo: 1, pageSize: 20 },
       companys: []
     }
@@ -202,6 +248,9 @@ export default {
     })
   },
   methods: {
+    changeCurrentType(type){
+      this.currentTypeAll = type
+    },
     changestyleType(type) {
       this.listQuery.style = type
       this.listQuery.code = 1
@@ -248,6 +297,10 @@ export default {
         this.listQuery,
         activeDetail
       )
+      editSummary(this.listQuery).then(res=>{
+        this.tableListAll = res.data.list
+        this.allTotle = res.data.total
+      })
       this.getExport()
       this.queryAddUser(
         {
@@ -271,6 +324,11 @@ export default {
       activeDetails(temp).then(res => {
         this.exportData = res.data.list
       })
+      temp.pageNo = 0
+      temp.pageSize = 0
+      editSummary(temp).then(res=>{
+        this.exportDataAll = res.data.list
+      })
     },
     handleChange() {
       this.currentpage = 1
@@ -283,12 +341,61 @@ export default {
         activeDetail
       )
       this.getExport()
+      editSummary(this.listQuery).then(res=>{
+        this.tableListAll = res.data.list
+        this.allTotle = res.data.total
+      })
       this.queryAddUser(
         this.listQuery,
         activeList
       )
     },
+    allExport(){
+      if (this.selectExcelData.length <= 0) {
+        const h = this.$createElement
+        this.$msgbox({
+          title: '消息',
+          message: h('p', null, [h('span', null, '您确定要导出所有数据吗')]),
+          showCancelButton: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              instance.confirmButtonLoading = true
+              instance.confirmButtonText = '执行中...'
+              done()
+              this.selectExcelData = this.exportDataAll
+              this.allExport()
+            } else {
+              done()
+            }
+            instance.confirmButtonLoading = false
+            console.log(done)
+          }
+        }).then(action => {})
+        return
+      }
+
+      this.downloadLoading = true
+      import('@/vendor/Export2Excel').then(excel => {
+        const tHeader = [ '友商', '日活', '周活', '月活', '周活跃率','月活跃率']
+        const filterVal = [ 'companyName', 'dayCount', 'weekCount', 'monthCount', 'dayThanWeek','dayThanMonth']
+        console.log(this.selectExcelData)
+        const data = this.formatJson(filterVal, this.selectExcelData)
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: 'template-list'
+        })
+        this.selectExcelData = []
+        this.downloadLoading = false
+      })
+    },
     handleDownload() {
+      if(this.currentTypeAll==0){
+        this.allExport()
+        return
+      }
       if (this.selectExcelData.length <= 0) {
         const h = this.$createElement
         this.$msgbox({
@@ -345,6 +452,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.dz-ul-box{
+  ul{
+    display: flex;
+    border: 1px solid #C3C3C3;
+    border-radius: 4px;
+    height:38px;
+    line-height: 38px;
+    text-align: center;
+    li{
+      width:92px ;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: PingFangSC-Regular, PingFang SC;
+      font-weight: 400;
+      color: #666666;
+      &.active{
+        background: #2274E5;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #FFFFFF;
+      }
+    }
+  }
+}
 .papercard {
   display: flex;
   justify-content: space-between;

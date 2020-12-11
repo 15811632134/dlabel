@@ -52,7 +52,6 @@ $cursor: #333;
 $bg: #fafafc;
 $dark_gray: #889aa4;
 $light_gray: #eee;
-
 .login-container {
   .pwdMainLogin {
     margin-top: 40px;
@@ -65,7 +64,6 @@ $light_gray: #eee;
   width: 100%;
   background-color: $bg;
   overflow: hidden;
-
   .login-form {
     padding: 40px 72px;
     position: absolute;
@@ -90,7 +88,6 @@ $light_gray: #eee;
       right: 12.83% !important;
     }
   }
-
   .tips {
     font-size: 14px;
     color: #fff;
@@ -138,9 +135,7 @@ $light_gray: #eee;
       cursor: pointer;
       // color: rgba(102, 102, 102, 1);
       // font-size: 24px;
-
       // font-family: PingFangSC-Regular;
-
       text-align: center;
       margin-top: 10px;
       font-size: 14px;
@@ -221,7 +216,6 @@ $light_gray: #eee;
   }
   .useProtocol {
     margin-top: 16px;
-
     font-family: PingFangSC-Regular;
     & > span:nth-child(even) {
       color: rgba(34, 116, 229, 1);
@@ -341,7 +335,6 @@ $light_gray: #eee;
       background: rgba(255, 255, 255, 1);
       border-radius: 16px;
       border: 1px solid rgba(221, 221, 221, 1);
-
       text-align: center;
       font-size: 14px;
       font-family: PingFangSC-Regular, PingFangSC;

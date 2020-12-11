@@ -12,7 +12,7 @@
       </div>
       <div class="echarts-time">
         <div class="selectPartner">
-          <label>商户：</label>
+          <label>友商：</label>
           <el-select
             v-model="listQuery.companyId"
             class="filter-item"
@@ -51,7 +51,7 @@
           </div>
           <div class="explain">
             <span>标签统计</span>
-            <img src="@/assets/img/i-icon.png" >
+            <img src="@/assets/img/i-icon.png" />
           </div>
         </el-tooltip>
         <div class="bar-tran-box">
@@ -65,7 +65,6 @@
       </div>
       <el-table
         v-show="barIndex===0"
-        ref="singleTable"
         :data="tableLists.data1"
         highlight-current-row
         class="table"
@@ -80,9 +79,7 @@
         />
         <el-table-column sortable property="proportion" label="占比" align="center">
           <template slot-scope="{row}">
-            <div class="thumbnail">
-              <span>{{ row.proportion }}%</span>
-            </div>
+            {{ row.proportion }}%
           </template>
         </el-table-column>
         <el-table-column sortable property="count" label="总数" align="center" />
@@ -102,11 +99,11 @@
         <el-tooltip class="item" effect="dark" placement="right">
           <div slot="content" class="tooltip-content-box">
             每天统计用户云标签内容的相关词的出现次数根据云标签的内容，提取所有文本，
-            <br >并拆解成各词条，最后统计相关词条出现的次数
+            <br />并拆解成各词条，最后统计相关词条出现的次数
           </div>
           <div class="explain">
             <span>标签内容分析</span>
-            <img src="@/assets/img/i-icon.png" >
+            <img src="@/assets/img/i-icon.png" />
           </div>
         </el-tooltip>
         <div class="bar-tran-box">
@@ -116,8 +113,7 @@
       </div>
       <el-table
         v-loading="contentLoading"
-        v-show="barIndex===0"
-        ref="singleTable"
+        v-if="barIndex===0"
         :data="tableLists.data2"
         highlight-current-row
         class="table"
@@ -141,12 +137,11 @@
       <div v-show="barIndex===1" class="tabselect">
         <el-tooltip class="item" effect="dark" placement="right">
           <div slot="content" class="tooltip-content-box">
-            每天统计用户云标签内容的相关词的出现次数根据云标签的内容，提取所有文本，
-            <br >并拆解成各词条，最后统计相关词条出现的次数
+            根据用户的搜索内容，分析出搜索词，每天统计相关词的搜索次数
           </div>
           <div class="explain">
             <span>搜索统计</span>
-            <img src="@/assets/img/i-icon.png" >
+            <img src="@/assets/img/i-icon.png" />
           </div>
         </el-tooltip>
         <div class="bar-tran-box">
@@ -162,18 +157,18 @@
           >不去重</span>
           <el-tooltip class="item" effect="dark" placement="right">
             <div slot="content" class="tooltip-content-box">
-              每天统计用户云标签内容的相关词的出现次数根据云标签的内容，提取所有文本，
-              <br >并拆解成各词条，最后统计相关词条出现的次数
+              去重：指用户云标签的多个相关词，只统计一条
+              <br /> 
+              不去重：指用户云标签的多个相关词，统计多条
             </div>
             <div class="explain">
-              <img src="@/assets/img/i-icon.png" >
+              <img src="@/assets/img/i-icon.png" />
             </div>
           </el-tooltip>
         </div>
       </div>
       <el-table
         v-if="barIndex === 1"
-        ref="singleTable"
         :data="tableLists.data3"
         :default-sort="{prop: 'search_times', order: 'ascending'}"
         highlight-current-row
@@ -242,22 +237,22 @@
 </template>
 
 <script>
-import moment from 'moment'
+import moment from 'moment';
 import {
   tagSizeLocalCloud,
   cloudTags,
   tagContent,
   cloudKeywords,
-  templateKeywords
-} from '@/api/api-python'
-import { open_company_list } from '@/api/api'
+  templateKeywords,
+} from '@/api/api-python';
+import { open_company_list } from '@/api/api';
 export default {
   filters: {
     formatDate(time) {
       if (time) {
-        return moment(time).format('YYYY-MM-DD HH:mm:ss')
+        return moment(time).format('YYYY-MM-DD HH:mm:ss');
       }
-    }
+    },
   },
   data() {
     return {
@@ -282,192 +277,224 @@ export default {
         page: 1,
         page_size: 10,
         company_id: '',
-        ordering: ''
+        ordering: '',
       },
       // 标签内容分析
       query: {
         page: 1,
         page_size: 10,
         ordering: '',
-        deweight: 1
+        deweight: 1,
       },
       // 云模板分析搜索统计
       searchQuery: {
         page: 1,
         page_size: 10,
         ordering: '',
-        deweight: 1
+        deweight: 1,
       },
       // 商户
       companys: [],
       options: {
         disabledDate(time) {
-          return time.getTime() > Date.now() - 8.64e7
-        }
+          return time.getTime() > Date.now() - 8.64e7;
+        },
+        shortcuts: [
+          {
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              end.setTime(end.getTime() - 24 * 60 * 60 * 1000);
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            },
+          },
+          {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              end.setTime(end.getTime() - 24 * 60 * 60 * 1000);
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            },
+          },
+          {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              end.setTime(end.getTime() - 24 * 60 * 60 * 1000);
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            },
+          },
+        ],
       },
       time: [
         moment().subtract(7, 'days').format('YYYY-MM-DD'),
-        moment().subtract(1, 'days').format('YYYY-MM-DD')
+        moment().subtract(1, 'days').format('YYYY-MM-DD'),
       ],
       tableLists: {
         data1: [],
         data2: [],
         data3: [],
-        data4: []
+        data4: [],
       },
-      equip: ['未知', '安卓', 'IOS', 'PC', 'Web端']
-    }
+      equip: ['未知', '安卓', 'IOS', 'PC', 'Web端'],
+    };
   },
   created() {
-    this.getCloudTags()
-    this.getCompanyList()
-    this.getCloudKeywords()
+    this.getCloudTags();
+    this.getCompanyList();
+    this.getCloudKeywords();
   },
   methods: {
     sortChange(val) {
       if (val.order === 'ascending') {
-        this.listQuery.ordering = val.prop
+        this.listQuery.ordering = val.prop;
       } else if (val.order === 'descending') {
-        this.listQuery.ordering = `-${val.prop}`
+        this.listQuery.ordering = `-${val.prop}`;
       } else {
-        this.listQuery.ordering = ''
+        this.listQuery.ordering = '';
       }
       if (this.currentIndex === 0) {
-        this.getCloudTags()
+        this.getCloudTags();
       } else if (this.currentIndex === 1) {
-        this.getTagSizeLocalCloud()
+        this.getTagSizeLocalCloud();
       } else {
-        this.tagContent()
+        this.tagContent();
       }
     },
     // 标签内容分析改变
     sortContentChange(val) {
       if (val.order === 'ascending') {
-        this.query.ordering = val.prop
+        this.query.ordering = val.prop;
       } else if (val.order === 'descending') {
-        this.query.ordering = `-${val.prop}`
+        this.query.ordering = `-${val.prop}`;
       } else {
-        this.query.ordering = ''
+        this.query.ordering = '';
       }
-      this.getCloudKeywords()
+      this.getCloudKeywords();
     },
     // 搜索统计排列
     sortSearchChange(val) {
       if (val.order === 'ascending') {
-        this.searchQuery.ordering = val.prop
+        this.searchQuery.ordering = val.prop;
       } else if (val.order === 'descending') {
-        this.searchQuery.ordering = `-${val.prop}`
+        this.searchQuery.ordering = `-${val.prop}`;
       } else {
-        this.query.ordering = ''
+        this.query.ordering = '';
       }
-      this.getTemplateKeywords()
+      this.getTemplateKeywords();
     },
     async getCompanyList() {
-      const res = await open_company_list()
-      this.companys = res.data
-      this.companys.splice(0, 0, { id: '', shortName: '全部' })
+      const res = await open_company_list();
+      this.companys = res.data;
+      this.companys.splice(0, 0, { id: '', shortName: '全部' });
     },
     // 商户change
     changeType(val) {
-      this.listQuery.company_id = val
+      this.listQuery.company_id = val;
       if (this.barIndex === 0) {
-        this.getCloudKeywords()
+        this.getCloudKeywords();
         if (this.currentIndex === 0) {
-          this.getCloudTags()
+          this.getCloudTags();
         } else if (this.currentIndex === 1) {
-          this.getTagSizeLocalCloud()
+          this.getTagSizeLocalCloud();
         } else {
-          this.tagContent()
+          this.tagContent();
         }
       } else {
-        this.getTemplateKeywords()
+        this.getTemplateKeywords();
       }
     },
     handleSizeChangeData(val, params) {
-      this[`${params}`].page_size = val
+      this[`${params}`].page_size = val;
       if (params === 'listQuery') {
         if (this.currentIndex === 0) {
-          this.getCloudTags()
+          this.getCloudTags();
         } else if (this.currentIndex === 1) {
-          this.getTagSizeLocalCloud()
+          this.getTagSizeLocalCloud();
         } else {
-          this.tagContent()
+          this.tagContent();
         }
       } else if (params === 'query') {
-        this.getCloudKeywords()
+        this.getCloudKeywords();
       } else {
-        this.getTemplateKeywords()
+        this.getTemplateKeywords();
       }
     },
     handleCurrentChangeData(val, params) {
-      this[`${params}`].page = val
+      this[`${params}`].page = val;
       if (params === 'listQuery') {
         if (this.currentIndex === 0) {
-          this.getCloudTags()
+          this.getCloudTags();
         } else if (this.currentIndex === 1) {
-          this.getTagSizeLocalCloud()
+          this.getTagSizeLocalCloud();
         } else {
-          this.tagContent()
+          this.tagContent();
         }
       } else if (params === 'query') {
-        this.getCloudKeywords()
+        this.getCloudKeywords();
       } else {
-        this.getTemplateKeywords()
+        this.getTemplateKeywords();
       }
     },
     selectBarIndex(index) {
-      this.loading = true
-      this.barIndex = index
+      this.loading = true;
+      this.barIndex = index;
       if (index === 0) {
         if (this.currentIndex === 0) {
-          this.getCloudTags()
+          this.getCloudTags();
         } else if (this.currentIndex === 1) {
-          this.getTagSizeLocalCloud()
+          this.getTagSizeLocalCloud();
         } else {
-          this.tagContent()
+          this.tagContent();
         }
-        this.getCloudKeywords()
+        this.getCloudKeywords();
       } else {
-        this.getTemplateKeywords()
+        this.getTemplateKeywords();
       }
     },
     selectData(index) {
-      this.currentIndex = index
-      this.listQuery.page = 1
-      this.listQuery.page_size = 10
-      this.currentpage = 1
+      this.currentIndex = index;
+      this.listQuery.page = 1;
+      this.listQuery.page_size = 10;
+      this.currentpage = 1;
       if (index === 0) {
-        this.getCloudTags()
+        this.getCloudTags();
       } else if (index === 1) {
-        this.getTagSizeLocalCloud()
+        this.getTagSizeLocalCloud();
       } else {
-        this.tagContent()
+        this.tagContent();
       }
     },
     selectRepeat(index) {
-      this.repeatIndex = index
-      this.query.deweight = index
-      this.getCloudKeywords()
+      this.repeatIndex = index;
+      this.query.deweight = index;
+      this.getCloudKeywords();
     },
     // 搜索统计去重、不去重
     selectSearchData(index) {
-      this.searchIndex = index
-      this.searchQuery.deweight = index
-      this.getTemplateKeywords()
+      this.searchIndex = index;
+      this.searchQuery.deweight = index;
+      this.getTemplateKeywords();
     },
     // 时间变化
     handleChange() {
       if (this.barIndex === 0) {
-        this.getCloudKeywords()
+        this.getCloudKeywords();
         if (this.currentIndex === 0) {
-          this.getCloudTags()
+          this.getCloudTags();
         } else if (this.currentIndex === 1) {
-          this.getTagSizeLocalCloud()
+          this.getTagSizeLocalCloud();
         } else {
-          this.tagContent()
+          this.tagContent();
         }
       } else {
-        this.getTemplateKeywords()
+        this.getTemplateKeywords();
       }
     },
     async getCloudTags() {
@@ -477,15 +504,15 @@ export default {
         company_id: this.listQuery.company_id,
         ordering: this.listQuery.ordering,
         start_time: this.time[0],
-        end_time: this.time[1]
-      })
-      this.tableLists.data1 = res.results.results
-      this.totalnumber = res.results.count
-      this.loading = false
+        end_time: this.time[1],
+      });
+      this.tableLists.data1 = res.results.results;
+      this.totalnumber = res.results.count;
+      this.loading = false;
     },
     // 标签内容分析
     async getCloudKeywords() {
-      this.contentLoading = true
+      this.contentLoading = true;
       const res = await cloudKeywords({
         deweight: this.query.deweight,
         page_size: this.query.page_size,
@@ -493,11 +520,11 @@ export default {
         company_id: this.listQuery.company_id,
         ordering: this.query.ordering,
         start_time: this.time[0],
-        end_time: this.time[1]
-      })
-      this.tableLists.data2 = res.results.results
-      this.contentNumber = res.results.count
-      this.contentLoading = false
+        end_time: this.time[1],
+      });
+      this.tableLists.data2 = res.results.results;
+      this.contentNumber = res.results.count;
+      this.contentLoading = false;
     },
     // 获取标签信息
     async getTagSizeLocalCloud() {
@@ -507,11 +534,11 @@ export default {
         company_id: this.listQuery.company_id,
         ordering: this.listQuery.ordering,
         start_time: this.time[0],
-        end_time: this.time[1]
-      })
-      this.tableLists.data1 = res.results.results
-      this.totalnumber = res.results.count
-      this.loading = false
+        end_time: this.time[1],
+      });
+      this.tableLists.data1 = res.results.results;
+      this.totalnumber = res.results.count;
+      this.loading = false;
     },
     // 获取标签信息标签内容
     async tagContent() {
@@ -521,10 +548,10 @@ export default {
         company_id: this.listQuery.company_id,
         ordering: this.listQuery.ordering,
         start_time: this.time[0],
-        end_time: this.time[1]
-      })
-      this.tableLists.data1 = res.results.results
-      this.totalnumber = res.results.count
+        end_time: this.time[1],
+      });
+      this.tableLists.data1 = res.results.results;
+      this.totalnumber = res.results.count;
     },
     // 搜索统计
     async getTemplateKeywords() {
@@ -535,13 +562,13 @@ export default {
         company_id: this.listQuery.company_id,
         ordering: this.searchQuery.ordering,
         start_time: this.time[0],
-        end_time: this.time[1]
-      })
-      this.tableLists.data3 = res.results.results
-      this.searchNumber = res.results.count
-    }
-  }
-}
+        end_time: this.time[1],
+      });
+      this.tableLists.data3 = res.results.results;
+      this.searchNumber = res.results.count;
+    },
+  },
+};
 </script>
 
 <style scoped lang="scss">
@@ -696,4 +723,11 @@ export default {
     }
   }
 }
+// .table {
+//  /deep/ .el-table__body tr,
+//   .el-table__body td {
+//     padding: 0;
+//     height: 40px;
+//   }
+// }
 </style>

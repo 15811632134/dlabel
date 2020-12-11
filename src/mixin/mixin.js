@@ -78,7 +78,6 @@ const mixin = {
   created() { },
   methods: {
     // 获取列表数据
-
     async getListData(data, url) {
       const res = await url(data)
       if (res.code === 100) {
@@ -405,8 +404,30 @@ const mixin = {
       }
       this.widthauto = width + 'px'
     },
+
+     scrollToTop (duration) {
+        // cancel if already on top
+        if (document.scrollingElement.scrollTop === 0) return;
+
+        const totalScrollDistance = document.scrollingElement.scrollTop;
+        let scrollY = totalScrollDistance, oldTimestamp = null;
+
+        function step (newTimestamp) {
+            if (oldTimestamp !== null) {
+                // if duration is 0 scrollY will be -Infinity
+                scrollY -= totalScrollDistance * (newTimestamp - oldTimestamp) / duration;
+                if (scrollY <= 0) return document.scrollingElement.scrollTop = 0;
+                document.scrollingElement.scrollTop = scrollY;
+            }
+            oldTimestamp = newTimestamp;
+            window.requestAnimationFrame(step);
+        }
+        window.requestAnimationFrame(step);
+    },
     // currentPage 改变时会触发
     handleCurrentChange(val) {
+      this.scrollToTop(300)
+      // document.documentElement.scrollTop = 0
       if (this.listQuery.pageNo && !this.listQuery.isFile) {
         this.listQuery.pageNo = val
         this.listQuery.pageSize = this.pagesize

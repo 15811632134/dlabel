@@ -21,11 +21,16 @@
     <div class="signadmin">
       <div class="signnav">
         <h3>标志类别({{ navList.size }})</h3>
-        <ol class="signavlist">
+        <transition-group tag="ol" class="signavlist">
           <li
             v-for="(element, index) in navList.list"
             :key="index"
+            :draggable="true"
             @click="selectParent(index)"
+            @dragstart="handleDragStart($event, element)"
+            @dragover.prevent="handleDragOver($event, element)"
+            @dragenter="handleDragEnter($event, element)"
+            @dragend="handleDragEnd($event, element)"
           >
             <div class="button">
               <em
@@ -46,11 +51,17 @@
                 />
               </div>
             </div>
-            <ul v-show="element.checked">
+            <transition-group tag="ul" >
               <li
                 v-for="(item, cindex) in element.child"
+                v-show="element.checked"
                 :key="item.id"
+                :draggable="true"
                 :class="index === pIndex && cindex === currentI ? 'active' : ''"
+                @dragend.stop="handleDragEndChild($event, item,index)"
+                @dragstart.stop="handleDragStartChild($event, item,index)"
+                @dragover.stop="handleDragOverChild($event, item,index)"
+                @dragenter.stop="handleDragEnterChild($event, item,index)"
                 @click.stop="showtable(item, index, cindex)"
               >
                 {{ item.name }}（{{ item.size }}）
@@ -65,9 +76,9 @@
                   />
                 </div>
               </li>
-            </ul>
+            </transition-group>
           </li>
-        </ol>
+        </transition-group>
       </div>
       <div class="signtable">
         <h3>{{ cType }}（{{ sizenum }}）</h3>
@@ -238,6 +249,13 @@
             maxlength="10"
           />
         </el-form-item>
+        <el-form-item label="英文名称" prop="enName" style="width:400px;">
+          <el-input
+            v-model="ruleClassifyForm.enName"
+            placeholder="限制10个字符"
+            maxlength="10"
+          />
+        </el-form-item>
         <el-form-item class="submit">
           <el-button @click="visibile = false">取消</el-button>
           <el-button type="primary" @click="classifySubmit">确定</el-button>
@@ -321,7 +339,8 @@ import {
   icontypeList,
   icontypeInsert,
   icontypeDelete,
-  icontypeUpdate
+  icontypeUpdate,
+  icontypeSort
 } from '@/api/api'
 import qs from 'qs'
 import moment from 'moment'
@@ -372,7 +391,8 @@ export default {
       },
       ruleClassifyForm: {
         name: '',
-        parentId: ''
+        parentId: '',
+        enName:''
       },
       classifyrules: {
         name: [{ required: true, message: '文件名不能为空', trigger: 'blur' }]
@@ -407,6 +427,120 @@ export default {
     this.getIconList()
   },
   methods: {
+    handleDragStart(e, item) {
+      if (this.c) {
+        return
+      }
+      this.dragging = item
+      this.f = true
+      console.log(item)
+    },
+    handleDragEnd(e, item) {
+      if (this.c) {
+        return
+      }
+      this.f = false
+      this.dragging = null
+      var tempData = []
+      console.log(item)
+      for (var i = 0; i < this.navList.list.length; i++) {
+        if (this.navList.list[i].id) { this.navList.list[i].sort = i }
+        for (var j = 0; j < this.navList.list[i].child.length; j++) {
+          if (this.navList.list[i].child[j].id) { this.navList.list[i].child[j].sort = j }
+        }
+      }
+      icontypeSort({ json: JSON.stringify(this.navList.list) })
+      console.log(this.navList.list)
+    },
+    // 首先把div变成可以放置的元素，即重写dragenter/dragover
+    handleDragOver(e) {
+      if (this.c) {
+        return
+      }
+      e.dataTransfer.dropEffect = 'move' // e.dataTransfer.dropEffect="move";//在dragenter中针对放置目标来设置!
+    },
+    handleDragEnter(e, item) {
+      if (this.c) {
+        return
+      }
+      e.dataTransfer.effectAllowed = 'move' // 为需要移动的元素设置dragstart事件
+      if (item === this.dragging) {
+        return
+      }
+      const newItems = [...this.navList.list]
+      const src = newItems.indexOf(this.dragging)
+      const dst = newItems.indexOf(item)
+
+      newItems.splice(dst, 0, ...newItems.splice(src, 1))
+
+      this.navList.list = newItems
+    },
+
+    handleDragStartChild(e, item, index) {
+      if (this.f) {
+        return
+      }
+      this.dragging = item
+      console.log('qqqqq')
+    },
+    handleDragEndChild(e, item, index) {
+      if (this.f) {
+        return
+      }
+      this.dragging = null
+      var tempData = []
+      for (var i = 0; i < this.navList.list.length; i++) {
+        if (this.navList.list[i].id) { this.navList.list[i].sort = i }
+        for (var j = 0; j < this.navList.list[i].child.length; j++) {
+          if (this.navList.list[i].child[j].id) { this.navList.list[i].child[j].sort = j }
+        }
+      }
+
+      icontypeSort({ json: JSON.stringify(this.navList.list) })
+    },
+    // 首先把div变成可以放置的元素，即重写dragenter/dragover
+    handleDragOverChild(e, item, index) {
+      if (this.f) {
+        return
+      }
+      console.log('qqqqq')
+      e.dataTransfer.dropEffect = 'move' // e.dataTransfer.dropEffect="move";//在dragenter中针对放置目标来设置!
+    },
+    handleDragEnterChild(e, item, index) {
+      if (this.f) {
+        return
+      }
+      e.dataTransfer.effectAllowed = 'move' // 为需要移动的元素设置dragstart事件
+      if (item === this.dragging) {
+        return
+      }
+      const newItems = [...this.navList.list[index].child]
+      const src = newItems.indexOf(this.dragging)
+      const dst = newItems.indexOf(item)
+
+      newItems.splice(dst, 0, ...newItems.splice(src, 1))
+
+      this.navList.list[index].child = newItems
+    },
+    toggleSelection(rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row)
+        })
+      } else {
+        this.$refs.multipleTable.clearSelection()
+      }
+    },
+    handleSelectionChange(val) {
+      const newval = val.map(element => ({
+        id: element.id
+      }))
+      const newarr = []
+      for (var i = 0; i < newval.length; i++) {
+        newarr.push(newval[i].id)
+      }
+      this.multipleSelection = newarr
+    },
     toggleSelection(rows) {
       if (rows) {
         rows.forEach(row => {
@@ -585,6 +719,9 @@ export default {
       this.$refs['ruleClassifyForm'].validate(async valid => {
         if (valid) {
           const apiurl = this.hasedit ? icontypeUpdate : icontypeInsert
+          if(!this.hasedit){
+            delete this.ruleClassifyForm.id
+          }
           const res = await apiurl(this.ruleClassifyForm)
           if (res) {
             this.visibile = false
@@ -612,8 +749,11 @@ export default {
         this.$refs.ruleClassifyForm.resetFields()
         this.title = '新增父类'
         this.subtitle = '父类名称'
-        this.ruleClassifyForm.name = ''
-        this.ruleClassifyForm.parentId = ''
+        this.ruleClassifyForm = {
+          name:'',
+          parentId : '',
+          enName : ''
+        }
       })
     },
     // 编辑父类
@@ -627,6 +767,7 @@ export default {
         this.ruleClassifyForm.name = element.name
         this.ruleClassifyForm.id = element.id
         this.ruleClassifyForm.parentId = ''
+        this.ruleClassifyForm.enName = element.enName
       })
     },
     // 编辑子类
@@ -640,6 +781,7 @@ export default {
         this.ruleClassifyForm.name = element.name
         this.ruleClassifyForm.id = element.id
         this.ruleClassifyForm.parentId = element.parentId
+        this.ruleClassifyForm.enName = element.enName
       })
     },
     // 编辑分类接口

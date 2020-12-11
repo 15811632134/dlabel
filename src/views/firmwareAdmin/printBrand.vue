@@ -8,7 +8,6 @@
          >{{ item }}</li>
       </ul>
     </div>
-
     <div class="filter-container_02 posab_box">
       <div class="search m_floatR" >
         <div class="build" @click="openAdd()" >

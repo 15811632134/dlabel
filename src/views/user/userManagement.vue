@@ -7,7 +7,6 @@
             v-for="(item,index) in companys"
             :class="currentIndex==index?'active':''"
             :key="index"
-            v-show="index>0"
             class="textLine"
             @click="selectCompany(item.id,index)"
           >{{ item.shortName }}({{item.count}})</li>

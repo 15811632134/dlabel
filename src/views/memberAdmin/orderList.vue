@@ -25,9 +25,9 @@
         </div>
         <div class="filesearch filesearch_box">
           <!-- <div class="search">
-          <el-input v-model="listQuery.name"  maxlength="20" placeholder="根据文件名搜索" @keyup.native.enter="handleSearch" class="input-with-select">
-            <el-button slot="append" icon="el-icon-search" @click="handleSearch" />
-          </el-input>
+            <el-input v-model="listQuery.name"  maxlength="20" placeholder="根据文件名搜索" @keyup.native.enter="handleSearch" class="input-with-select">
+              <el-button slot="append" icon="el-icon-search" @click="handleSearch" />
+            </el-input>
           </div>-->
           <div class="search searchFlex">
             <div class="search-list">
@@ -119,8 +119,10 @@
                   <div class="echarts-date">
                     <el-date-picker
                       v-model="selectDate"
+                      :disabled="listQuery.phone.length>0"
                       :picker-options="pickerOptions"
                       type="daterange"
+                      @change="handleSearch"
                       start-placeholder="开始日期"
                       end-placeholder="结束日期"
                       value-format="yyyy-MM-dd"
@@ -140,7 +142,7 @@
                 </div>
               </div>
             </div>
-            <div v-if=" barIndex==1" class="search" style="margin-left:24px;">
+            <div v-if=" barIndex==1&&listQuery.companyId" class="search" style="margin-left:24px;">
               <div class="search-list searchbtn" @click="addOrder">
                 <div class="search-item">
                   <span class="b-g">
@@ -217,7 +219,7 @@
           style="width: 100%"
           class="table"
         >
-        <el-table-column type="index" label="序号" width="80" />
+          <el-table-column type="index" label="序号" width="80" />
           <el-table-column
             v-for="(item,index) in proList"
             v-if="item.flag"
@@ -234,7 +236,7 @@
               >{{ row[item.attribute]|formatDate() }}</div>
               <div
                 class="item"
-               v-else-if="item.attribute=='expire_time'"
+                v-else-if="item.attribute=='expire_time'"
               >{{ row[item.attribute]|formatDate() }}</div>
               <div
                 class="item"
@@ -298,12 +300,17 @@
           </el-table-column>-->
           <el-table-column
             property="address"
-            fixed="right"
             label="操作"
             width="100"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="{row}">
+              <!-- <el-tooltip class="item" effect="dark" content="退款" v-show="row.order_status==1" placement="top">
+                <i
+                  class="iconfont icontuikuan tipsTxt"
+                  @click="showReturnData(row)"
+                />
+              </el-tooltip>-->
               <el-tooltip class="item" effect="dark" content="编辑" placement="top">
                 <i
                   class="iconfont iconbianji tipsTxt"
@@ -321,7 +328,7 @@
           style="width: 100%"
           class="table"
         >
-        <el-table-column type="index" label="序号" width="80" />
+          <el-table-column type="index" label="序号" width="80" />
           <el-table-column
             v-for="(item,index) in proList"
             v-if="item.flag"
@@ -338,7 +345,7 @@
               >{{ row[item.attribute]|formatDate() }}</div>
               <div
                 class="item"
-               v-else-if="item.attribute=='expire_time'"
+                v-else-if="item.attribute=='expire_time'"
               >{{ row[item.attribute]|formatDate() }}</div>
               <div
                 class="item"
@@ -364,7 +371,10 @@
                 class="item"
                 v-else-if="item.attribute=='order_status'"
               >{{row[item.attribute]==1?'已支付':'未支付' }}</div>
-
+              <div
+                class="item"
+                v-else-if="item.attribute=='refund_status'"
+              >{{row[item.attribute]==1?'已退款':'--' }}</div>
               <div class="item" v-else>{{ row[item.attribute]?row[item.attribute]:'--' }}</div>
             </template>
           </el-table-column>
@@ -405,8 +415,11 @@
           <el-table-column label="备注">
             <template slot-scope="{row}">{{ row.return_visit_desc }}</template>
           </el-table-column>-->
-          <el-table-column property="address" fixed="right" label="操作" width="200">
+          <el-table-column property="address" label="操作" width="200">
             <template slot-scope="{row}">
+              <el-tooltip class="item" effect="dark"  content="退款" placement="top">
+                <i class="iconfont icontuikuan tipsTxt" :style="row.is_refund==0?'':'color:#C3C3C3'" @click="showReturnData(row)" />
+              </el-tooltip>
               <el-tooltip class="item" effect="dark" content="编辑" placement="top">
                 <i class="iconfont iconbianji" @click="showUpdateData(row.order_no,row.user_id)" />
               </el-tooltip>
@@ -422,7 +435,7 @@
           style="width: 100%"
           class="table"
         >
-        <el-table-column type="index" label="序号" width="80" />
+          <el-table-column type="index" label="序号" width="80" />
           <el-table-column
             v-for="(item,index) in proList"
             v-if="item.flag"
@@ -439,7 +452,7 @@
               >{{ row[item.attribute]|formatDate() }}</div>
               <div
                 class="item"
-               v-else-if="item.attribute=='expire_time'"
+                v-else-if="item.attribute=='expire_time'"
               >{{ row[item.attribute]|formatDate() }}</div>
               <div
                 class="item"
@@ -506,7 +519,7 @@
           </el-table-column>
           <el-table-column label="备注">
             <template slot-scope="{row}">{{ row.return_visit_desc }}</template>
-          </el-table-column> -->
+          </el-table-column>-->
           <el-table-column property="address" label="操作" width="200">
             <template slot-scope="{row}">
               <el-tooltip class="item" effect="dark" content="编辑" placement="top">
@@ -523,7 +536,7 @@
           style="width: 100%"
           class="table"
         >
-        <el-table-column type="index" label="序号" width="80" />
+          <el-table-column type="index" label="序号" width="80" />
           <el-table-column
             v-for="(item,index) in proList"
             v-if="item.flag"
@@ -540,7 +553,7 @@
               >{{ row[item.attribute]|formatDate() }}</div>
               <div
                 class="item"
-               v-else-if="item.attribute=='expire_time'"
+                v-else-if="item.attribute=='expire_time'"
               >{{ row[item.attribute]|formatDate() }}</div>
 
               <div
@@ -598,7 +611,7 @@
           </el-table-column>
           <el-table-column label="备注">
             <template slot-scope="{row}">{{ row.return_visit_desc }}</template>
-          </el-table-column> -->
+          </el-table-column>-->
           <el-table-column property="address" label="操作" width="200">
             <template slot-scope="{row}">
               <el-tooltip class="item" effect="dark" content="编辑" placement="top">
@@ -680,12 +693,11 @@
     >
       <img :src="imgPath" class="magnifier" @load="onLoad" />
     </el-dialog>
-
     <el-dialog
       :close-on-click-modal="false"
       :visible.sync="showDialog"
       title="新增"
-      class="dialog"
+      class="dialog add-dialog"
       width="560px"
     >
       <el-form
@@ -705,7 +717,32 @@
             autocomplete="off"
           />
         </el-form-item>
-        <el-form-item label="订购方案：" prop="count">
+        <el-form-item label="订购类型：" prop="type">
+          <el-select v-model="ruleFormOrder.type" filterable placeholder="请选择" @change="changeType">
+            <el-option
+              v-for="item in selectTypes"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="订购方案：" prop="type" v-if="ruleFormOrder.type==2">
+          <el-select
+            v-model="ruleFormOrder.vipConfigId"
+            filterable
+            placeholder="请选择"
+            @change="changeType"
+          >
+            <el-option
+              v-for="item in memberList"
+              :key="item.id"
+              :label="item.levelName"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="订购方案：" prop="count" v-if="ruleFormOrder.type==1">
           <el-input
             v-model="ruleFormOrder.count"
             type="text"
@@ -714,7 +751,7 @@
             autocomplete="off"
           />
         </el-form-item>
-        <el-form-item label="订购时长：" prop="expirationDate">
+        <el-form-item label="订购时长：" prop="expirationDate" >
           <el-input
             v-model="ruleFormOrder.expirationDate"
             type="text"
@@ -743,6 +780,86 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+
+    <el-dialog :visible.sync="returnDialog" title="退款" class="dialog return-dialog" width="500px">
+      <el-form
+        ref="returnForm"
+        :model="returnForm"
+        :rules="rules"
+        label-width="100px"
+        class="demo-ruleForm"
+      >
+        <el-form-item label="订单编号：" prop="order_no" class="version">
+          <div style="word-break: break-all;">{{ returnForm.order_no }}</div>
+        </el-form-item>
+        <el-form-item label="商户流水：" prop="out_order_no" class="version">
+          <div style="word-break: break-all;">{{ returnForm.out_order_no }}</div>
+        </el-form-item>
+        <el-form-item label="手机号：" prop="phone" class="version">
+          <div style="word-break: break-all;">{{ returnForm.phone }}</div>
+        </el-form-item>
+        <el-form-item label="订购方案：" prop="name" class="version">
+          <div style="word-break: break-all;">{{ returnForm.plan }}</div>
+        </el-form-item>
+        <el-form-item label="订购时间：" prop="name" class="version">
+          <div style="word-break: break-all;">{{ returnForm.pay_time }}</div>
+        </el-form-item>
+        <el-form-item label="支付金额：" prop="name" class="version">
+          <div style="word-break: break-all;">{{ returnForm.pay_price }}</div>
+        </el-form-item>
+        <el-form-item label="退款金额：" prop="name" class="version">
+          <div style="word-break: break-all;">{{ returnForm.pay_price }}</div>
+        </el-form-item>
+        <el-form-item label="备注：" prop="description">
+          <div class="remarks_box">
+            <div class="remarks" style="width:300px;">
+              <el-input
+                v-model="returnForm.description"
+                type="textarea"
+                placeholder="请输入内容"
+                maxlength="200"
+              />
+              <!-- <span>{{ ruleFormItem.description.length }}/200</span> -->
+            </div>
+          </div>
+        </el-form-item>
+        <el-form-item class="submit">
+          <el-button @click="returnDialog=false">取消</el-button>
+          <el-button type="primary" @click="returnPrice">确定</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
+    <el-dialog
+      :close-on-click-modal="false"
+      :visible.sync="showDialogPwd"
+      title="输入密码"
+      class="dialog add-dialog"
+      width="500px"
+    >
+      <el-form
+        ref="ruleFormOrder"
+        :model="ruleFormPwd"
+        :modal-append-to-body="false"
+        label-width="100px"
+        class="demo-ruleForm"
+      >
+        <el-form-item label="登录密码：">
+          <el-input
+            v-model="ruleFormPwd.password"
+            type="password"
+            maxlength="50"
+            placeholder="请输入密码"
+            autocomplete="off"
+          />
+        </el-form-item>
+
+        <el-form-item class="submit">
+          <el-button @click="showDialogPwd=false">取消</el-button>
+          <el-button type="primary" @click="checkPwd">确定</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -761,9 +878,27 @@ import {
   unpay_user_page,
   loss_user_page,
   export_all_order,
-  save_order_fields
+  save_order_fields,
+  get_vip_list,
+  check_password,
+  refund,
+  check_phone,
 } from '@/api/api';
 import moment from 'moment';
+export const validatePhone = async (rule, value, callback) => {
+  if (!value) {
+    callback(new Error('请输入手机号'));
+  } else {
+    await check_phone({ phone: value }).then((res) => {
+      if (res.code == 100) {
+        callback();
+      } else {
+        callback(new Error(res.message));
+      }
+    });
+    // callback()
+  }
+};
 export default {
   name: 'ComplexTable',
   filters: {
@@ -771,30 +906,37 @@ export default {
       if (!time) {
         return '';
       }
-      return moment(time).format('YYYY-MM-DD');
-    }
+      return moment(time).format('YYYY-MM-DD HH:MM:ss');
+    },
   },
   data() {
     this.apis = [
       all_order_page,
       payed_order_page,
       unpay_user_page,
-      loss_user_page
+      loss_user_page,
     ];
     this.apisExport = [
       export_all_order,
       export_payed_order,
       export_unpay_user,
-      export_loss_user
+      export_loss_user,
     ];
     return {
       showDialog: false,
+      returnDialog: false,
+      returnForm: {},
+      showDialogPwd: false,
       ruleFormOrder: {
         phone: '',
         count: '',
         expirationDate: '',
         payPrice: '',
-        payType: 1
+        payType: 1,
+        type: 1,
+      },
+      ruleFormPwd: {
+        password: '',
       },
       screenShow: false,
       proList: [],
@@ -806,33 +948,34 @@ export default {
         { id: 1, name: 'Android' },
         { id: 2, name: 'IOS' },
         { id: 3, name: 'PC' },
-        { id: 4, name: 'Web' }
+        { id: 4, name: 'Web' },
       ],
       rules: {},
       rulesOrder: {
-        phone: [{ required: true, message: '请输入手机号' }],
         count: [{ required: true, message: '请输入订购方案' }],
+        phone: [{ required: true, validator: validatePhone, trigger: 'blur' }],
+        type: [{ required: true, message: '请选择订购方案' }],
         expirationDate: [{ required: true, message: '请输入订购时长' }],
-        payPrice: [{ required: true, message: '请输入支付金额' }]
+        payPrice: [{ required: true, message: '请输入支付金额' }],
       },
       isdialog: false,
       handlers: [],
       types: [
         { id: 1, name: '支付宝' },
-        { id: 2, name: '微信' }
+        { id: 2, name: '微信' },
       ],
       isFocus: false,
       msgArr: [
         '电话未接通。',
         '客户有续购意愿，关注中。',
         '客户没有兴趣，无需跟进。',
-        '客户答应续购，关注中。'
+        '客户答应续购，关注中。',
       ],
       selectDate: [],
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now();
-        }
+        },
       },
       isedit: false,
       headers: [],
@@ -842,36 +985,40 @@ export default {
       buyTypes: [
         { id: '', name: '全部' },
         { id: 1, name: '扩容' },
-        { id: 2, name: '会员' }
+        { id: 2, name: '会员' },
+      ],
+      selectTypes: [
+        { id: 1, name: '扩容' },
+        { id: 2, name: '会员' },
       ],
       orderStatus: [
         { id: '', name: '全部' },
         { id: 1, name: '已支付' },
-        { id: 0, name: '未支付' }
+        { id: 0, name: '未支付' },
       ],
       returnVisitStatusArr: [
         { id: '', name: '全部' },
         { id: 0, name: '未跟进' },
         { id: 1, name: '跟进中' },
-        { id: 2, name: '完成' }
+        { id: 2, name: '完成' },
       ],
       options: [
         {
           id: '',
-          name: '全部'
+          name: '全部',
         },
         {
           id: 1,
-          name: 'Android'
+          name: 'Android',
         },
         {
           id: 2,
-          name: 'IOS'
+          name: 'IOS',
         },
         {
           id: 3,
-          name: 'PC'
-        }
+          name: 'PC',
+        },
       ],
       allCheck: false,
 
@@ -881,12 +1028,12 @@ export default {
         orderNo: '',
         returnVisitStatus: 0,
         returnVisitDesc: '',
-        userId: ''
+        userId: '',
       },
       tempData: ['data1', 'data2', 'data3', 'data4'],
       companys: [],
       currentCid: -1,
-      orderTexts:['all_order','payed_order','unpayed_order','loss_user'],
+      orderTexts: ['all_order', 'payed_order', 'unpayed_order', 'loss_user'],
       listQuery: {
         pageNo: 1,
         pageSize: 10,
@@ -899,13 +1046,14 @@ export default {
         equip: 1,
         isFile: true,
         startTime: '2020-4-20',
-        endTime: '2020-5-6'
-      }
+        endTime: '2020-5-6',
+      },
+      memberList: [],
     };
   },
   computed: {
     checkEq() {
-      return function(index) {
+      return function (index) {
         if (!index) {
           return '';
         }
@@ -917,20 +1065,23 @@ export default {
         }
         return name;
       };
-    }
+    },
   },
   created() {
-    this.getFileds()
+    get_vip_list().then((res) => {
+      this.memberList = res.data;
+    });
+    this.getFileds();
     this.chooseTime('week');
-    handler_list().then(res => {
+    handler_list().then((res) => {
       this.selectsHandler = Object.assign([], res.data);
       this.handlers = res.data;
-      console.log(this.selectsHandler);
       this.handler = res.data[0].id;
       this.handlers.splice(0, 0, { id: '', account: '全部' });
     });
-    open_company_list().then(res => {
+    open_company_list().then((res) => {
       this.listapi = all_order_page;
+      res.data.splice(0, 0, { id: '', shortName: '全部' });
       this.companys = res.data;
       if (this.companys.length > 0) {
         this.listQuery.companyId = this.companys[0].id;
@@ -939,34 +1090,67 @@ export default {
     });
   },
   methods: {
-    getFileds(){
-      get_order_fields({ show_type: this.orderTexts[this.barIndex] }).then(res => {
-      for (let i = 0; i < res.data.length; i++) {
-        res.data[i].mType = 'input';
-        if (res.data[i].attribute == 'buyDate') {
-          res.data[i].mType = 'date';
-        }
-        if (res.data[i].attribute == 'expiresDate') {
-          res.data[i].mType = 'date';
-        }
-        if (res.data[i].status === 1) {
-          res.data[i].flag = true;
-          this.allCheck = true;
-        } else {
-          res.data[i].flag = false;
-        }
-      }
-      // res.data.splice(0,0,{})
-      this.proList = res.data;
-    });
+    returnPrice() {
+      this.showDialogPwd = true;
+      this.ruleFormPwd.password = '';
     },
-    openScreenShow(){
-      this.tempDataSort = JSON.parse(JSON.stringify(this.proList))
-      this.screenShow = true
+    checkPwd() {
+      var temp = {};
+      var shaObj = new appEncryption(this.ruleFormPwd.password);
+      temp.password = shaObj.getHash();
+      check_password(temp).then((res) => {
+        if (res.code == 100) {
+          refund({
+            orderNo: this.returnForm.order_no,
+            description: this.returnForm.description,
+          }).then((res) => {
+            if (res.code == 100) {
+              this.returnDialog = false;
+              this.showDialogPwd = false;
+              this.$message.success('退款成功');
+            }
+          });
+        }
+      });
+    },
+    changeType() {},
+    showReturnData(item) {
+      if(item.is_refund!=0){
+        return
+      }
+      this.returnForm = item;
+      this.returnDialog = true;
+    },
+    getFileds() {
+      get_order_fields({ show_type: this.orderTexts[this.barIndex] }).then(
+        (res) => {
+          for (let i = 0; i < res.data.length; i++) {
+            res.data[i].mType = 'input';
+            if (res.data[i].attribute == 'buyDate') {
+              res.data[i].mType = 'date';
+            }
+            if (res.data[i].attribute == 'expiresDate') {
+              res.data[i].mType = 'date';
+            }
+            if (res.data[i].status === 1) {
+              res.data[i].flag = true;
+              this.allCheck = true;
+            } else {
+              res.data[i].flag = false;
+            }
+          }
+          // res.data.splice(0,0,{})
+          this.proList = res.data;
+        }
+      );
+    },
+    openScreenShow() {
+      this.tempDataSort = JSON.parse(JSON.stringify(this.proList));
+      this.screenShow = true;
     },
     cancel() {
       this.screenShow = false;
-      this.proList =  this.tempDataSort
+      this.proList = this.tempDataSort;
     },
     comfirmShows() {
       const tempData = Object.assign([], this.proList);
@@ -978,7 +1162,10 @@ export default {
           element.status = 0;
         }
       });
-      save_order_fields({show_type:this.orderTexts[this.barIndex], order_fields: JSON.stringify(this.proList) }).then(res => {
+      save_order_fields({
+        show_type: this.orderTexts[this.barIndex],
+        order_fields: JSON.stringify(this.proList),
+      }).then((res) => {
         if (res.code == 100) {
           this.screenShow = false;
           this.$message.success('保存成功');
@@ -1010,22 +1197,40 @@ export default {
       }
       const newItems = [...this.proList];
       const src = newItems.indexOf(this.dragging);
-      const dst = newItems.indexOf(item);
-
-      newItems.splice(dst, 0, ...newItems.splice(src, 1));
-
+      const dst = newItems.indexOf(item)
+      newItems.splice(dst, 0, ...newItems.splice(src, 1))
       this.proList = newItems;
     },
     createData() {
-      this.$refs.ruleFormOrder.validate(async valid => {
+      this.$refs.ruleFormOrder.validate(async (valid) => {
         if (valid) {
-          create_order(this.ruleFormOrder).then(res => {
+          var tempData = {};
+          if (this.ruleFormOrder.type == 1) {
+            tempData = {
+              phone: this.ruleFormOrder.phone,
+              count: this.ruleFormOrder.count,
+              expirationDate: this.ruleFormOrder.expirationDate,
+              payPrice: this.ruleFormOrder.payPrice,
+              payType: this.ruleFormOrder.payType,
+              type: 1,
+            }
+          } else {
+            tempData = {
+              phone: this.ruleFormOrder.phone,
+              vipConfigId: this.ruleFormOrder.vipConfigId,
+              expirationDate: this.ruleFormOrder.expirationDate,
+              payPrice: this.ruleFormOrder.payPrice,
+              payType: this.ruleFormOrder.payType,
+              type: 2,
+            }
+          }
+          create_order(tempData).then((res) => {
             if (res.code == 100) {
               this.showDialog = false;
               this.selectBarIndex(this.barIndex);
               this.$message.success('创建成功！');
             }
-          });
+          })
         }
       });
     },
@@ -1034,11 +1239,10 @@ export default {
       this.orderObj.userId = userId;
       this.orderObj.returnVisitStatus = 0;
       this.orderObj.returnVisitDesc = '';
-
       this.isdialog = true;
     },
     updateData() {
-      return_visit(this.orderObj).then(res => {
+      return_visit(this.orderObj).then((res) => {
         if (res.code === 100) {
           this.$message.success('修改成功');
           this.initData(this.barIndex);
@@ -1068,7 +1272,7 @@ export default {
       this.barIndex = index;
       this.listapi = this.apis[this.barIndex];
       this.initData();
-      this.getFileds()
+      this.getFileds();
     },
     initData() {
       var tempData = {};
@@ -1077,15 +1281,16 @@ export default {
         tempData = {
           pageNo: this.listQuery.pageNo,
           pageSize: this.listQuery.pageSize,
-          companyId: this.listQuery.companyId,
+
           phone: this.listQuery.phone,
           orderStatus: this.listQuery.orderStatus,
           productType: this.listQuery.productType,
           equip: this.listQuery.equip,
           isFile: true,
           startTime: this.listQuery.startTime,
-          endTime: this.listQuery.endTime
+          endTime: this.listQuery.endTime,
         };
+
         this.headers = [
           '订单编号',
           '商户流水',
@@ -1096,7 +1301,7 @@ export default {
           '订购时长',
           '订购平台',
           '支付金额（元）',
-          '支付状态'
+          '支付状态',
         ];
         this.bodys = [
           'order_no',
@@ -1108,7 +1313,7 @@ export default {
           'expiration_date',
           'equip',
           'pay_price',
-          'order_status'
+          'order_status',
         ];
       } else if (this.barIndex === 1) {
         tempData = {
@@ -1121,7 +1326,7 @@ export default {
           equip: this.listQuery.equip,
           isFile: true,
           startTime: this.listQuery.startTime,
-          endTime: this.listQuery.endTime
+          endTime: this.listQuery.endTime,
         };
         this.headers = [
           '订单编号',
@@ -1133,7 +1338,7 @@ export default {
           '订购时长',
           '订购平台',
           '支付金额（元）',
-          '支付平台'
+          '支付平台',
         ];
         this.bodys = [
           'order_no',
@@ -1145,7 +1350,7 @@ export default {
           'expiration_date',
           'equip',
           'pay_price',
-          'pay_type'
+          'pay_type',
         ];
       } else if (this.barIndex === 2) {
         tempData = {
@@ -1160,7 +1365,7 @@ export default {
           equip: this.listQuery.equip,
           isFile: true,
           startTime: this.listQuery.startTime,
-          endTime: this.listQuery.endTime
+          endTime: this.listQuery.endTime,
         };
         this.headers = [
           '订单编号',
@@ -1173,7 +1378,7 @@ export default {
           '下单时间',
           '操作人',
           '状态',
-          '备注'
+          '备注',
         ];
         this.bodys = [
           'order_no',
@@ -1186,7 +1391,7 @@ export default {
           'create_time',
           'name',
           'return_visit_status',
-          'return_visit_desc'
+          'return_visit_desc',
         ];
       } else if (this.barIndex === 3) {
         tempData = {
@@ -1199,7 +1404,7 @@ export default {
           equip: this.listQuery.equip,
           isFile: true,
           startTime: this.listQuery.startTime,
-          endTime: this.listQuery.endTime
+          endTime: this.listQuery.endTime,
         };
         this.headers = [
           '手机号',
@@ -1209,7 +1414,7 @@ export default {
           '操作人',
           '操作时间',
           '状态',
-          '备注'
+          '备注',
         ];
         this.bodys = [
           'phone',
@@ -1219,15 +1424,24 @@ export default {
           'name',
           'update_time',
           'return_visit_status',
-          'return_visit_desc'
+          'return_visit_desc',
         ];
+      }
+      if (this.listQuery.companyId) {
+        tempData.companyId = this.listQuery.companyId;
+      } else {
+        delete tempData.companyId;
+      }
+      if(tempData.phone.length>0){
+        delete tempData.startTime
+        delete tempData.endTime
       }
       this.getListDataFile(
         tempData,
         this.listapi,
         this.tempData[this.barIndex]
       );
-      this.apisExport[this.barIndex](tempData).then(res => {
+      this.apisExport[this.barIndex](tempData).then((res) => {
         for (var i = 0; i < res.data.length; i++) {
           // res.data[i].equip =
           //   res.data[i].equip === 1
@@ -1337,28 +1551,43 @@ export default {
             }
             instance.confirmButtonLoading = false;
             console.log(done);
-          }
-        }).then(action => {});
+          },
+        }).then((action) => {});
         return;
       }
-     this.bodys = []
-      this.headers = []
+      this.bodys = [];
+      this.headers = [];
       for (let i = 0; i < this.proList.length; i++) {
         if (this.proList[i].flag) {
-          this.bodys.push(this.proList[i].name)
-          this.headers.push(this.proList[i].attribute)
+          this.bodys.push(this.proList[i].name);
+          this.headers.push(this.proList[i].attribute);
         }
       }
       for (let i = 0; i < this.exportData.length; i++) {
-        console.log(this.exportData[i].equip)
-        this.exportData[i].equip = this.exportData[i].equip==1?'安卓':this.exportData[i].equip==3?'PC端':'其他'
-        this.exportData[i].product_type = this.exportData[i].product_type==1?'扩容':'会员'
-        this.exportData[i].expire_time = moment(this.exportData[i].expire_time).format('YYYY-MM-DD')
-        this.exportData[i].user_create_time = moment(this.exportData[i].user_create_time).format('YYYY-MM-DD')
-        this.exportData[i].return_visit_status = this.exportData[i].return_visit_status==0?'未跟进':this.exportData[i].return_visit_status==1?'跟进中':'已完成'
+        console.log(this.exportData[i].equip);
+        this.exportData[i].equip =
+          this.exportData[i].equip == 1
+            ? '安卓'
+            : this.exportData[i].equip == 3
+            ? 'PC端'
+            : '其他';
+        this.exportData[i].product_type =
+          this.exportData[i].product_type == 1 ? '扩容' : '会员';
+        this.exportData[i].expire_time = moment(
+          this.exportData[i].expire_time
+        ).format('YYYY-MM-DD');
+        this.exportData[i].user_create_time = moment(
+          this.exportData[i].user_create_time
+        ).format('YYYY-MM-DD');
+        this.exportData[i].return_visit_status =
+          this.exportData[i].return_visit_status == 0
+            ? '未跟进'
+            : this.exportData[i].return_visit_status == 1
+            ? '跟进中'
+            : '已完成';
       }
       this.downloadLoading = true;
-      import('@/vendor/Export2Excel').then(excel => {
+      import('@/vendor/Export2Excel').then((excel) => {
         const tHeader = this.bodys;
         const filterVal = this.headers;
 
@@ -1366,15 +1595,15 @@ export default {
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'template-list'
+          filename: 'template-list',
         });
         this.selectExcelData = [];
         this.downloadLoading = false;
       });
     },
     formatJson(filterVal, jsonData) {
-      return jsonData.map(v =>
-        filterVal.map(j => {
+      return jsonData.map((v) =>
+        filterVal.map((j) => {
           if (j === 'timestamp') {
             // eslint-disable-next-line no-undef
             return parseTime(v[j]);
@@ -1383,32 +1612,47 @@ export default {
           }
         })
       );
-    }
-  }
+    },
+  },
 };
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-/deep/.el-table__fixed-right{
+.remarks_box .remarks /deep/textarea {
+  height: 100px !important;
+}
+.el-form-item {
+  margin-bottom: 10px;
+}
+/deep/.add-dialog {
+  .el-form-item {
+    margin-bottom: 20px;
+  }
+}
+/deep/.el-table--scrollable-x .el-table__body-wrapper {
+  max-height: 500px;
+  overflow: auto;
+}
+/deep/.el-table__fixed-right {
   opacity: 0;
   transition: all 1s linear;
 }
-/deep/.el-table:hover{
-  /deep/.el-table__fixed-right{
+/deep/.el-table:hover {
+  /deep/.el-table__fixed-right {
     // display: block !important;
     opacity: 1;
   }
 }
 .app-container .search .search-list {
-/deep/.el-input{
-  width:300px;
+  /deep/.el-input {
+    width: 300px;
+  }
 }
-}
-.echarts-time .echarts-date .el-date-editor{
-  width:300px;
+.echarts-time .echarts-date .el-date-editor {
+  width: 300px;
   height: 36px;
 }
-.echarts-time .echarts-date em{
-  top:7px;
+.echarts-time .echarts-date em {
+  top: 7px;
 }
 .signadmin {
   width: 100%;
@@ -1476,7 +1720,7 @@ export default {
 }
 .app-menu {
   max-height: 888px;
-  overflow-y:auto;
+  overflow-y: auto;
   padding-bottom: 10px;
   margin-top: 0px !important;
 }

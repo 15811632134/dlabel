@@ -13,12 +13,12 @@
       </ul>
       <transition-group tag="ul" class="container m_clearLR">
         <li
-        :draggable="true"
+            :draggable="true"
             @dragstart="handleDragStart($event, item)"
             @dragover.prevent="handleDragOver($event, item)"
             @dragenter="handleDragEnter($event, item)"
             @dragend="handleDragEnd($event, item)"
-        v-for="(item,index) in roleoptions" v-show="index>0" :class="listQuery.templateTypeId==item.id?'active':''" :key="index" class="textLine tempType" @click="changeType(item.id)">
+            v-for="(item,index) in roleoptions" v-show="index>0" :class="listQuery.templateTypeId==item.id?'active':''" :key="index" class="textLine tempType" @click="changeType(item.id)">
           <div style="width:100px" class="textLine">{{ item.name }}</div>
           <div class="edit">
             <i class="iconfont iconbianji" @click="confirmEdit(item)" />
@@ -122,7 +122,7 @@
         <el-pagination
           :current-page.sync="currentpage"
           :page-sizes="[10, 30, 50, 100]"
-          :page-size="10"
+          :page-size="listQuery.pageSize"
           :total="totalnumber"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange($event, listQuery)"
@@ -231,6 +231,12 @@ export default {
     }
   },
   created() {
+    if(localStorage.getItem('openHistory')){
+      this.listQuery = JSON.parse(localStorage.getItem('openHistory'))
+      this.currentpage = this.listQuery.pageNo
+      this.pagesize = this.listQuery.pageSize
+      localStorage.setItem('openHistory','')
+    }
     // alert(this.text)
     this.listapi = templateList
     this.getListData(Object.assign({ pageNo: this.currentpage, pageSize: this.pagesize }, this.listQuery), templateList)
@@ -333,7 +339,6 @@ export default {
       const newItems = [...this.roleoptions]
       const src = newItems.indexOf(this.dragging)
       const dst = newItems.indexOf(item)
-
       newItems.splice(dst, 0, ...newItems.splice(src, 1))
 
       this.roleoptions = newItems
@@ -344,7 +349,7 @@ export default {
     },
     addDDLs(){
       templatesystemInserts({json:JSON.stringify(this.ddls),templateTypeId: this.listQuery.templateTypeId}).then(res=>{
-        if(res.code == 100){
+        if(res.code==100){
           this.openAddTemp = false
           this.getListData(Object.assign({ pageNo: this.currentpage, pageSize: this.pagesize }, this.listQuery), templateList)
           this.$message({
@@ -400,12 +405,14 @@ export default {
     },
     // 编辑模板管理
     editBack(id) {
+      localStorage.setItem('openHistory',JSON.stringify(this.listQuery))
       this.$router.push({
         path: '/material/templateAdminEdit',
         query: {
           id
         }
       })
+
     },
     // 查询角色名称
     async getDlabelSysRoleList() {

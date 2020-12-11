@@ -613,7 +613,8 @@ import {
   myclouddocList,
   clouddb_list,
   cloudlogo_list,
-  cloudbgimage_list
+  cloudbgimage_list,
+  getCountryCode
 } from '@/api/api'
 import {
   industry_type,
@@ -986,16 +987,12 @@ export default {
     },
     // 获取手机区号集合
     async getAreaCode() {
-      const res = await axios.get(
-        'https://dlabel.mydlabel.com/api/country/code.json'
-      )
-      const allCity = res.data.data.allCity.filter(
-        (value) =>
-          res.data.data.hotCity.filter(
-            (item) => item.phoneCode === value.phoneCode
-          ).length <= 0
-      )
-      this.phoneList = [...res.data.data.hotCity, ...allCity]
+     const res = await getCountryCode();
+      // const res = await axios.get(
+      //   'https://dlabel.mydlabel.com/api/country/code.json'
+      // )
+      const allCity = res.data.allCity
+      this.phoneList = [...allCity]
       this.phoneList.forEach((value, index) => {
         this.$set(value, 'phoneCode', `+${value.phoneCode}`)
       })

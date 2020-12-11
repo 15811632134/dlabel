@@ -1,9 +1,7 @@
 <template>
   <div class="app-container">
     <div class="echarts-time" style="width:100%">
-
       <div style="display:flex;width:100%">
-
         <div class="selectPartner" style="margin-right:32px">
           <label>商户：</label>
           <el-select v-model="listQuery.companyId" class="filter-item" placeholder="请选择" @change="changeType">
@@ -49,48 +47,51 @@
       <div class="echarts-title-c">
         <span>单位：人</span>
       </div>
-      <ve-line :data="chartDataFile" :extend="extendOperate" />
+      <ve-line :data="chartDataFile"  :extend="extendOperate" />
     </div>
-
     <div class="pieLine_box">
       <div class="pieLine_div">
         <div class="line_data" >
           <div class="echarts-title m_clearLR">
-        <div class="m_floatL title">区间增长趋势
-
+        <div class="m_floatL title">区间增长趋势</div>
+        <div class="select_box m_floatR m_clearLR">
+          <ul class="m_data_ul m_clearLR m_floatL" style="width:241px">
+            <li  class="m_floatL " :class="currentIndex==1?'active':''" @click="changeFileType(1)" >增长趋势</li>
+            <li  class="m_floatL" :class="currentIndex==2?'active':''" @click="changeFileType(2)" >区间走势</li>
+          </ul>
         </div>
-
       </div>
-      <div class="unitTitle" style="margin-top:-8px">单位：个</div>
-          <ve-line :data="chartData" :extend="extendOperate" />
+      <div class="unitTitle" >单位：个</div>
+          <ve-line :data="chartData" v-loading="loading" :extend="extendOperate" />
         </div>
          <div class="pie_data">
           <div id="main" style="width: 450px;height:520px;"/>
         </div>
       </div>
     </div>
-
     <div class="pieLine_box">
       <div class="pieLine_div">
         <div class="line_data" >
           <div class="echarts-title m_clearLR">
         <div class="m_floatL title">上传数量统计
-
         </div>
-
+        <div class="select_box m_floatR m_clearLR">
+          <ul class="m_data_ul m_clearLR m_floatL" style="width:241px">
+            <li  class="m_floatL " :class="currentIndexNum==1?'active':''" @click="changeFileTypeNum(1)" >增长趋势</li>
+            <li  class="m_floatL" :class="currentIndexNum==2?'active':''" @click="changeFileTypeNum(2)" >区间走势</li>
+          </ul>
+        </div>
       </div>
-      <div class="unitTitle" style="margin-top:-8px">单位：个</div>
-           <ve-line :data="chartDataNum"  :extend="extendOperate" />
-        </div>
+      <div class="unitTitle" >单位：个</div>
+          <ve-line :data="chartDataNum"  :extend="extendOperate" />
+      </div>
       </div>
     </div>
-
   </div>
 </template>
-
 <script>
 import VeLine from 'v-charts/lib/line.common'
-import { registerDetail,dlabeldatadocumentInterval_rate, dlabeldatadocumentUpload_total,registerList, open_company_list, dlabeldatadocument_list ,dlabeldatadocumentInterval} from '@/api/api'
+import { registerDetail,dlabeldatadocumentInterval_rate,dlabeldatadocumentUpload_trend,dlabeldatadocumentTrend, dlabeldatadocumentUpload_total,registerList, open_company_list, dlabeldatadocument_list ,dlabeldatadocumentInterval} from '@/api/api'
 import datacenter from '@/mixin/datacenter.js'
 import echarts from 'echarts'
 export default {
@@ -106,6 +107,10 @@ export default {
       exportData: [],
       selectExcelData: [],
       pieData:[],
+      loading:true,
+      currentIndex:1,
+      currentIndexNum:1,
+      dataType:'',
       currentType: '',
       chartDataNum: {
         columns: ['日期', 'PC', 'Android', 'IOS', 'All'],
@@ -123,10 +128,184 @@ export default {
       this.chooseTime('week')
       this.getList()
     })
-
-
   },
   methods: {
+    changeFileTypeNum(type){
+      this.currentIndexNum = type
+      if(type==1){
+        dlabeldatadocumentUpload_total({ companyId: this.listQuery.companyId,
+        startTime: this.listQuery.startTime,
+        endTime: this.listQuery.endTime,
+        type: this.dateType }).then(res => {
+        if (res.code === 100) {
+          const dataTime = res.data.xAxis
+          const app = res.data.items
+          this.chartDataNum.rows = []
+
+          this.chartDataNum.columns = ['日期']
+          this.chartAllData.rows = []
+          for (let i = 0; i < dataTime.length; i++) {
+            const obj = {}
+            const allobj = {}
+            for (let j = 0; j < app.length; j++) {
+              if (i === 0) {
+                this.chartDataNum.columns.push(app[j].name)
+              }
+              obj['日期'] = dataTime[i]
+              obj[app[j].name] = app[j].data[i]
+
+            // obj['PC'] = app[3].data[i]
+            // obj['Android'] = app[1].data[i]
+            // obj['IOS'] = app[2].data[i]
+            // obj['WEB'] = app[4].data[i]
+            }
+            // allobj['日期'] = dataTime[i]
+            // allobj['All'] = app[0].data[i]
+            this.chartDataNum.rows.push(obj)
+            this.chartAllData.rows.push(allobj)
+          }
+        } else {
+          this.$message({
+            showClose: true,
+            message: res.message,
+            type: 'error'
+          })
+        }
+      })
+      }else{
+
+        dlabeldatadocumentUpload_trend({ companyId: this.listQuery.companyId,
+        startTime: this.listQuery.startTime,
+        endTime: this.listQuery.endTime,
+        type: this.dateType }).then(res => {
+        if (res.code === 100) {
+          const dataTime = res.data.xAxis
+          const app = res.data.items
+          this.chartDataNum.rows = []
+
+          this.chartDataNum.columns = ['日期']
+          this.chartAllData.rows = []
+          for (let i = 0; i < dataTime.length; i++) {
+            const obj = {}
+            const allobj = {}
+            for (let j = 0; j < app.length; j++) {
+              if (i === 0) {
+                this.chartDataNum.columns.push(app[j].name)
+              }
+              obj['日期'] = dataTime[i]
+              obj[app[j].name] = app[j].data[i]
+
+            // obj['PC'] = app[3].data[i]
+            // obj['Android'] = app[1].data[i]
+            // obj['IOS'] = app[2].data[i]
+            // obj['WEB'] = app[4].data[i]
+            }
+            // allobj['日期'] = dataTime[i]
+            // allobj['All'] = app[0].data[i]
+            this.chartDataNum.rows.push(obj)
+            this.chartAllData.rows.push(allobj)
+          }
+        } else {
+          this.$message({
+            showClose: true,
+            message: res.message,
+            type: 'error'
+          })
+        }
+      })
+      }
+    },
+    changeFileType(type){
+      this.currentIndex = type
+      if(type==1){
+        this.loading = true
+        dlabeldatadocumentInterval({ companyId: this.listQuery.companyId,
+          startTime: this.listQuery.startTime,
+          endTime: this.listQuery.endTime,
+          type: this.dataType }).then(res => {
+            this.loading = false
+          if (res.code === 100) {
+            const dataTime = res.data.xAxis
+            const app = res.data.items
+            this.chartData.rows = []
+
+            this.chartData.columns = ['日期']
+            this.chartAllData.rows = []
+            for (let i = 0; i < dataTime.length; i++) {
+              const obj = {}
+              const allobj = {}
+              for (let j = 0; j < app.length; j++) {
+                if (i === 0) {
+                  this.chartData.columns.push(app[j].name)
+                }
+                obj['日期'] = dataTime[i]
+                obj[app[j].name] = app[j].data[i]
+
+              // obj['PC'] = app[3].data[i]
+              // obj['Android'] = app[1].data[i]
+              // obj['IOS'] = app[2].data[i]
+              // obj['WEB'] = app[4].data[i]
+              }
+              // allobj['日期'] = dataTime[i]
+              // allobj['All'] = app[0].data[i]
+              this.chartData.rows.push(obj)
+
+              console.log(this.chartData)
+              this.chartAllData.rows.push(allobj)
+            }
+          } else {
+            this.$message({
+              showClose: true,
+              message: res.message,
+              type: 'error'
+            })
+          }
+        })
+      }else{
+          this.loading = true
+        dlabeldatadocumentTrend({ companyId: this.listQuery.companyId,
+          startTime: this.listQuery.startTime,
+          endTime: this.listQuery.endTime,
+          type: this.dataType }).then(res => {
+          if (res.code === 100) {
+            const dataTime = res.data.xAxis
+            const app = res.data.items
+            this.chartData.rows = []
+            this.loading = false
+            this.chartData.columns = ['日期']
+            this.chartAllData.rows = []
+            for (let i = 0; i < dataTime.length; i++) {
+              const obj = {}
+              const allobj = {}
+              for (let j = 0; j < app.length; j++) {
+                if (i === 0) {
+                  this.chartData.columns.push(app[j].name)
+                }
+                obj['日期'] = dataTime[i]
+                obj[app[j].name] = app[j].data[i]
+
+              // obj['PC'] = app[3].data[i]
+              // obj['Android'] = app[1].data[i]
+              // obj['IOS'] = app[2].data[i]
+              // obj['WEB'] = app[4].data[i]
+              }
+              // allobj['日期'] = dataTime[i]
+              // allobj['All'] = app[0].data[i]
+              this.chartData.rows.push(obj)
+
+              console.log(this.chartData)
+              this.chartAllData.rows.push(allobj)
+            }
+          } else {
+            this.$message({
+              showClose: true,
+              message: res.message,
+              type: 'error'
+            })
+          }
+        })
+      }
+    },
     initData(){
       dlabeldatadocumentInterval_rate({ companyId: this.listQuery.companyId,
         type: this.listQuery.type }).then(res => {
@@ -138,7 +317,6 @@ export default {
             rate: res.data[item].percent
           })
         }
-
         this.pieData = tempData
         var that = this
         setTimeout(() => {
@@ -152,7 +330,6 @@ export default {
               formatter: '{a} <br/>{b} : {c} ({d}%)'
             },
             legend: {
-
               orient: 'vertical',
               type: 'scroll',
               scrollDataIndex: 0,
@@ -239,7 +416,7 @@ export default {
           const dataTime = res.data.xAxis
           const app = res.data.items
           this.chartData.rows = []
-
+          this.loading = false
           this.chartData.columns = ['日期']
           this.chartAllData.rows = []
           for (let i = 0; i < dataTime.length; i++) {
@@ -315,6 +492,7 @@ export default {
       })
     },
     changeType() {
+      this.dataType = this.listQuery.type
       this.handleChange()
     },
     getList() {

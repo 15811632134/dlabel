@@ -18,10 +18,10 @@
           <div class="title">会员用户数</div>
         </div>
         <div class="memberData_content">
-          0
+          {{overview.vip}}
         </div>
         <div class="memberData_footer">
-          全部占比:0%
+          全部占比:{{parseFloat(overview.vipRate*100).toFixed(2)}}%
         </div>
       </div>
       <div class="memberData_box ">
@@ -60,7 +60,6 @@
     </div>
     <div class="echarts-title m_clearLR">
       <div class="m_floatL title">数据趋势
-
         <el-tooltip placement="right" popper-class="tooltipStyle">
           <div slot="content" class="tooltipContent">
             <div>

@@ -39,6 +39,17 @@
               <el-input v-model="listQuery.phone" maxlength="20" placeholder="请输入创建者" @keyup.native.enter="handleSearch" />
             </div>
             <div class="search-list" >
+              <span>上传平台：</span>
+              <el-select v-model="listQuery.equip" @change="handleSearch" filterable placeholder="请选择" >
+                <el-option
+                  v-for="item in options"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </div>
+            <div class="search-list">
               <span>时间：</span>
               <div class="echarts-time" style="marign-bottom:0px;">
                 <div style="display:flex">
@@ -47,6 +58,7 @@
                       v-model="selectDate"
                       :picker-options="pickerOptions"
                       type="daterange"
+                      :disabled="listQuery.phone.length>0"
                       @change="changeDate"
                       start-placeholder="开始日期"
                       end-placeholder="结束日期"
@@ -57,7 +69,6 @@
                 </div>
               </div>
             </div>
-
             <div class="search" >
               <div class="search-list searchbtn">
                 <el-button type="primary" class="m_search" @click="handleSearch">查询</el-button>
@@ -79,6 +90,7 @@
         <el-table
           v-show="barIndex==0"
           ref="singleTable"
+          v-loading="loading"
           :data="tableLists.data1"
           highlight-current-row
           style="width: 100%"
@@ -158,7 +170,6 @@
             </template>
           </el-table-column>
         </el-table>
-
         <el-table
           v-show="barIndex==2"
           ref="singleTable"
@@ -316,17 +327,35 @@ export default {
       ruleForm: {},
       eqs: [{ id: 0, name: '其他' }, { id: 1, name: 'Android' }, { id: 2, name: 'IOS' }, { id: 3, name: 'PC' }, { id: 4, name: 'Web' }],
       rules: {},
+      options: [
+        {
+          id: '',
+          name: '全部'
+        },
+        {
+          id: 1,
+          name: 'Android'
+        },
+        {
+          id: 2,
+          name: 'IOS'
+        },
+        {
+          id: 3,
+          name: 'PC'
+        }
+      ],
       isedit: false,
+      loading:true,
       selectDate: [],
       currentIndex: 0,
       tempData: ['data1', 'data2', 'data3', 'data4'],
       companys: [],
       currentCid: -1,
-      listQuery: { pageNo: 1, pageSize: 10, companyId: -1, phone: '', isFile: true }
+      listQuery: { pageNo: 1, pageSize: 10, companyId: '', phone: '', isFile: true, equip:'' }
     }
   },
   computed: {
-
     checkEq() {
       return function(index) {
         if (!index) { return '' }
@@ -344,10 +373,11 @@ export default {
     this.chooseTime('week');
     open_company_list().then(res => {
       this.listapi = myclouddocList
+      res.data.splice(0, 0, { id: '', shortName: '全部' });
       this.companys = res.data
       if (this.companys.length > 0) {
         this.listQuery.companyId = this.companys[0].id
-        this.getListDataFile(this.listQuery, myclouddocList, this.tempData[this.barIndex])
+        this.getListDataFileList(this.listQuery, myclouddocList, this.tempData[this.barIndex])
       }
     })
   },
@@ -361,7 +391,7 @@ export default {
       this.resetTemp()
       this.barIndex = index
       this.listapi = this.apis[this.barIndex]
-      this.getListDataFile(this.listQuery, this.listapi, this.tempData[this.barIndex])
+      this.getListDataFileList(this.listQuery, this.listapi, this.tempData[this.barIndex])
     },
     resetData() {
       this.listQuery.name = ''
@@ -386,7 +416,7 @@ export default {
       this.listQuery.pageSize = 10
       this.currentIndex = index
       this.listQuery.companyId = id
-      this.getListDataFile(this.listQuery, this.listapi, this.tempData[this.barIndex])
+      this.getListDataFileList(this.listQuery, this.listapi, this.tempData[this.barIndex])
     },
     download(url) {
       location.href = url
@@ -399,12 +429,37 @@ export default {
     handleSearch() {
       this.listQuery.pageNo = 1
       this.currentpage = 1
-      this.getListDataFile(
+      this.loading = true
+      this.getListDataFileList(
         this.listQuery,
         this.listapi,
         this.tempData[this.barIndex]
       )
-    }
+    },
+    async getListDataFileList(data, url, obj) {
+
+      var temp = JSON.parse(JSON.stringify(data))
+      delete temp.isFile
+      if(temp.phone.length>0){
+        delete temp.startTime
+        delete temp.endTime
+      }
+      if(!temp.companyId){
+        delete temp.companyId
+      }
+      const res = await url(temp)
+      this.loading = false
+      if (res.code === 100) {
+        this.tableLists[obj] = res.data.list
+        this.totalnumber = res.data.total
+      } else {
+        this.$message({
+          showClose: true,
+          message: res.message,
+          type: 'error'
+        })
+      }
+    },
   }
 }
 </script>
@@ -480,6 +535,9 @@ export default {
 }
 .app-menu{
   margin-top:0px !important;
+}
+.app-container .search .search-list /deep/.el-input{
+  width:300px;
 }
 .filesearch_box{
   padding: 32px 0px 0px 24px;

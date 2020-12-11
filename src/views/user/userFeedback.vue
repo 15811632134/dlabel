@@ -3,71 +3,119 @@
     <div class="nav-wrap">
       <div class="buildFeed">
         <div class="add-wrap" @click="openAdd()">
-        <span class="add"><i class="el-icon-plus" /></span>
+          <span class="add">
+            <i class="el-icon-plus" />
+          </span>
           新增
         </div>
-        <div class="configuration listSet"><div @click="openScreenShow"><i class="iconfont iconshezhibeifen"  />配置</div>
-        <el-dialog :visible.sync="screenShow" :modal="false" title="选择显示的列表" width="240px">
-                  <div class="hightSelect_box m_clearLR">
-                    <div class="checkItem">
-                      <el-checkbox v-model="allCheck" @change="allselect">全选</el-checkbox>
+        <div class="configuration listSet">
+          <div @click="openScreenShow">
+            <i class="iconfont iconshezhibeifen" />
+            <div>配置</div>
+          </div>
+          <el-dialog :visible.sync="screenShow" :modal="false" title="选择显示的列表" width="240px">
+            <div class="hightSelect_box m_clearLR">
+              <div class="checkItem">
+                <el-checkbox v-model="allCheck" @change="allselect">全选</el-checkbox>
+              </div>
+              <transition-group tag="div" class="container m_clearLR">
+                <div
+                  v-for="(item,index) in proList"
+                  :key="index"
+                  class="checkItem"
+                  draggable="true"
+                  @dragstart="handleDragStart($event, item)"
+                  @dragover.prevent="handleDragOver($event, item)"
+                  @dragenter="handleDragEnter($event, item)"
+                  @dragend="handleDragEnd($event, item)"
+                >
+                  <div>
+                    <el-checkbox v-model="item.flag">{{ item.name }}</el-checkbox>
+                    <div class="sorts">
+                      <i class="iconfont iconpaixu1" />
                     </div>
-                    <transition-group tag="div" class="container m_clearLR">
-                      <div
-                        v-for="(item,index) in proList"
-                        :key="index"
-                        class="checkItem"
-                        draggable="true"
-                        @dragstart="handleDragStart($event, item)"
-                        @dragover.prevent="handleDragOver($event, item)"
-                        @dragenter="handleDragEnter($event, item)"
-                        @dragend="handleDragEnd($event, item)"
-                      >
-                        <div>
-                          <el-checkbox v-model="item.flag">{{ item.name }}</el-checkbox>
-                          <div class="sorts">
-                            <i class="iconfont iconpaixu1" />
-                          </div>
-                        </div>
-                      </div>
-                    </transition-group>
+                  </div>
+                </div>
+              </transition-group>
 
-                    <!-- <span slot="footer" class="dialog-footer">
+              <!-- <span slot="footer" class="dialog-footer">
                 <el-button @click="setIndex = -1">取 消</el-button>
                 <el-button type="primary" @click="comfirmShows">确 定</el-button>
-                    </span>-->
-                  </div>
-                  <span slot="footer" class="dialog-footer">
-                    <el-button @click="cancel">取 消</el-button>
-                    <el-button type="primary" @click="comfirmShows">确 定</el-button>
-                  </span>
-                </el-dialog>
+              </span>-->
+            </div>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="cancel">取 消</el-button>
+              <el-button type="primary" @click="comfirmShows">确 定</el-button>
+            </span>
+          </el-dialog>
         </div>
-        <div class="export-excel" @click="handleDownload"><i class="iconfont icondaochu" />导出</div>
+        <div class="export-excel" @click="handleDownload">
+          <i class="iconfont icondaochu" />
+          <div>导出</div>
+        </div>
       </div>
-      <div class="search-wrap" v-if="permissionData.indexOf('user_manage_feedback_select_executable')!=-1">
-        <el-input v-model="listQuery.keyword" @keyup.native.enter="getList" clearable maxlength="100" placeholder="请输入手机号/反馈内容关键词" />
-        <button class="search-btn" @click="getList"><i class="iconfont iconwenjianliebiao-chakan" /></button>
+      <div
+        class="search-wrap"
+        v-if="permissionData.indexOf('user_manage_feedback_select_executable')!=-1"
+      >
+        <el-input
+          v-model="listQuery.keyword"
+          @keyup.native.enter="getList"
+          clearable
+          maxlength="100"
+          placeholder="请输入手机号/反馈内容关键词"
+        />
+        <button class="search-btn" @click="getList">
+          <i class="iconfont iconwenjianliebiao-chakan" />
+        </button>
       </div>
     </div>
-    <div v-if="permissionData.indexOf('user_manage_feedback_select_executable')!=-1" class="echarts-time m_clearLR">
+    <div
+      v-if="permissionData.indexOf('user_manage_feedback_select_executable')!=-1"
+      class="echarts-time m_clearLR"
+    >
       <div class="m_clearLR m_floatL">
         <div class="selectPartner m_floatL">
           <label>平台：</label>
-          <el-select v-model="listQuery.equip" class="filter-item" placeholder="请选择" @change="getList">
+          <el-select
+            v-model="listQuery.equip"
+            class="filter-item"
+            placeholder="请选择"
+            @change="getList"
+          >
             <el-option v-for="(item) in equips" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </div>
         <div class="selectPartner m_floatL" style="margin-left:47px">
           <label>操作状态：</label>
-          <el-select v-model="listQuery.status" class="filter-item" placeholder="请选择" @change="getList">
-            <el-option v-for="(item) in opStatus" :key="item.id" :label="item.name" :value="item.id" />
+          <el-select
+            v-model="listQuery.status"
+            class="filter-item"
+            placeholder="请选择"
+            @change="getList"
+          >
+            <el-option
+              v-for="(item) in opStatus"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
           </el-select>
         </div>
         <div class="selectPartner m_floatL" style="margin-left:47px">
           <label>处理人：</label>
-          <el-select v-model="listQuery.handler" class="filter-item" placeholder="请选择" @change="getList">
-            <el-option v-for="(item) in handlers" :key="item.id" :label="item.account" :value="item.id" />
+          <el-select
+            v-model="listQuery.handler"
+            class="filter-item"
+            placeholder="请选择"
+            @change="getList"
+          >
+            <el-option
+              v-for="(item) in handlers"
+              :key="item.id"
+              :label="item.account"
+              :value="item.id"
+            />
           </el-select>
         </div>
       </div>
@@ -77,6 +125,7 @@
             v-model="selectDate2"
             :picker-options="pickerOptionsBack"
             align="center"
+            :disabled="listQuery.keyword.length>0"
             value-format="yyyy-MM-dd"
             format="yyyy-MM-dd"
             type="daterange"
@@ -98,36 +147,38 @@
             ref="singleTable"
             :data="tableList"
             highlight-current-row
-             @row-click="rowClick"
+            @row-click="rowClick"
             style="width: 100%"
             height="666"
             class="table"
           >
-
-          <el-table-column type="index" label="序号" width="80" />
-          <el-table-column
-            v-if="item.flag"
-            v-for="(item,index) in proList"
-            :key="index"
-            :label="item.name"
-            property="framePath"
-            align="center"
-            :width="item.attribute=='equip'||item.attribute=='currentHandlers'||item.attribute=='currentStatuss'?'80px':'auto'"
-            show-overflow-tooltip
-          >
-            <template slot-scope="{row}">
-              <div
-                class="item textLine"
-                v-if="item.attribute=='createTime'"
-              >{{ row[item.attribute]|formatDateTime() }}</div>
-              <div
-                class="item textLine"
-                v-else-if="item.attribute=='equip'"
-              >{{row[item.attribute]==1?'安卓':row[item.attribute]==3?'PC端':row[item.attribute]==2?'IOS端':'官网' }}</div>
-
-              <div class="item textLine" v-else>{{ row[item.attribute]?row[item.attribute]:'--' }}</div>
-            </template>
-          </el-table-column>
+            <el-table-column type="index" label="序号" width="80" />
+            <el-table-column
+              v-if="item.flag"
+              v-for="(item,index) in proList"
+              :key="index"
+              :label="item.name"
+              property="framePath"
+              align="center"
+              :width="item.attribute=='equip'||item.attribute=='currentHandlers'||item.attribute=='currentStatuss'?'80px':'auto'"
+              show-overflow-tooltip
+            >
+              <template slot-scope="{row}">
+                <div
+                  class="item textLine"
+                  v-if="item.attribute=='createTime'"
+                >{{ row[item.attribute]|formatDateTime() }}</div>
+                <div
+                  class="item textLine"
+                  v-else-if="item.attribute=='equip'"
+                >{{row[item.attribute]==1?'安卓':row[item.attribute]==3?'PC端':row[item.attribute]==2?'IOS端':'官网' }}</div>
+                <div
+                  class="item"
+                  v-else-if="item.attribute=='description'"
+                >{{ row[item.attribute]?row[item.attribute]:'--' }}</div>
+                <div class="item textLine" v-else>{{ row[item.attribute]?row[item.attribute]:'--' }}</div>
+              </template>
+            </el-table-column>
             <!-- <el-table-column type="index" label="序号" width="60" />
             <el-table-column property="phone" label="联系方式" show-overflow-tooltip />
             <el-table-column property="nickName" label="反馈平台" show-overflow-tooltip>
@@ -150,11 +201,14 @@
               <template slot-scope="{row}">
                 {{ row.currentHandlers || '空' }}
               </template>
-            </el-table-column> -->
+            </el-table-column>-->
             <el-table-column property="address" label="操作" width="180">
               <template slot-scope="scoped">
                 <el-tooltip class="item" effect="dark" content="操作" placement="top">
-                  <i class="iconfont iconcaozuo operation-icon" @click.stop="changeOp(scoped.row.id, scoped.$index)" />
+                  <i
+                    class="iconfont iconcaozuo operation-icon"
+                    @click.stop="changeOp(scoped.row.id, scoped.$index)"
+                  />
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="查看" placement="top">
                   <i
@@ -164,7 +218,10 @@
                   />
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="回复" placement="top">
-                  <i class="iconfont iconhuifu operation-icon" @click.stop="seeInfo(scoped.row, scoped.$index)" />
+                  <i
+                    class="iconfont iconhuifu operation-icon"
+                    @click.stop="seeInfo(scoped.row, scoped.$index)"
+                  />
                 </el-tooltip>
               </template>
             </el-table-column>
@@ -231,7 +288,7 @@
               </div>
 
             </div>
-          </div> -->
+          </div>-->
         </div>
 
         <div v-if="backIndex == -1" class="right" />
@@ -245,15 +302,14 @@
                   <div class="msg">{{ item.description }}</div>
                   <div class="img">{{ item.nickName&&item.nickName[item.nickName.length-1] }}</div>
                 </div>
-                <div class="msg_date" >{{ item.createTime|formatDateTime('') }}</div>
+                <div class="msg_date">{{ item.createTime|formatDateTime('') }}</div>
               </div>
               <div v-show="item.systemReply==0">
                 <div class="msg_top2">
                   <div class="img2">{{ item.nickName&&item.nickName[item.nickName.length-1] }}</div>
                   <div class="msg2">{{ item.description }}</div>
-
                 </div>
-                <div class="msg_date2" >{{ item.createTime|formatDateTime('') }}</div>
+                <div class="msg_date2">{{ item.createTime|formatDateTime('') }}</div>
               </div>
             </div>
           </div>
@@ -261,8 +317,19 @@
             <div class="msging_box">
               <div class="title">快速回复</div>
               <div class="selectInput">
-                <el-select v-model="msging" popper-class="backFeedMsg" class="filter-item" placeholder="请选择" @change="msgChange">
-                  <el-option v-for="(item) in msgings" :key="item.id" :label="item.name" :value="item.id" />
+                <el-select
+                  v-model="msging"
+                  popper-class="backFeedMsg"
+                  class="filter-item"
+                  placeholder="请选择"
+                  @change="msgChange"
+                >
+                  <el-option
+                    v-for="(item) in msgings"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                  />
                 </el-select>
               </div>
               <div class="remarks">
@@ -279,7 +346,7 @@
             </div>
             <div class="submitBack">
               <el-button @click="backIndex=-1">取消</el-button>
-              <el-button type="primary" @click="msgInsert" >确定</el-button>
+              <el-button type="primary" @click="msgInsert">确定</el-button>
             </div>
           </div>
         </div>
@@ -287,20 +354,40 @@
         <div v-if="backIndex==2" class="right">
           <div>操作</div>
           <div class="op_box">
-            <div v-for="(item) in statusData.opration" :key="item.id" class="op_div" >
+            <div v-for="(item) in statusData.opration" :key="item.id" class="op_div">
               <div class="top">{{ item.createTime|formatDateTime('') }}</div>
               <div class="footer">{{ item.content }}</div>
             </div>
           </div>
           <div class="btnAb">
-            <div v-show="statusData.enable&&statusData.tempStatus!=4" :class="!statusData.enable?'active':''" class="status">
-              <div class="title" >状态</div>
-              <div v-for="(item ,index) in status" :class="statusData.status==(index+1)?'active':''" :key="item.id" class="item" @click="changeStatus(index)">{{ item.name }}</div>
+            <div
+              v-show="statusData.enable&&statusData.tempStatus!=4"
+              :class="!statusData.enable?'active':''"
+              class="status"
+            >
+              <div class="title">状态</div>
+              <div
+                v-for="(item ,index) in status"
+                :class="statusData.status==(index+1)?'active':''"
+                :key="item.id"
+                class="item"
+                @click="changeStatus(index)"
+              >{{ item.name }}</div>
             </div>
             <div class="backStatu">
               <div class="title">处理人</div>
-              <el-select :disabled="statusData.enable&&statusData.status==4" v-model="handler" class="filter-item" placeholder="请选择">
-                <el-option v-for="(item) in selectsHandler" :key="item.id" :label="item.account" :value="item.id" />
+              <el-select
+                :disabled="!statusData.enable"
+                v-model="handler"
+                class="filter-item"
+                placeholder="请选择"
+              >
+                <el-option
+                  v-for="(item) in selectsHandler"
+                  :key="item.id"
+                  :label="item.account"
+                  :value="item.id"
+                />
               </el-select>
             </div>
             <div class="remarks_box">
@@ -308,7 +395,7 @@
                 <el-input
                   v-model="backDesc"
                   :rows="5"
-                  :disabled="statusData.enable&&statusData.status==4"
+                  :disabled="!statusData.enable"
                   type="textarea"
                   placeholder="请输入内容"
                   maxlength="100"
@@ -316,21 +403,21 @@
                 <span>{{ backDesc.length }}/100</span>
               </div>
             </div>
-            <div v-show="statusData.enable&&statusData.tempStatus==4" style="margin-top:16px" class="submitBack">
+            <div v-show="statusData.enable" style="margin-top:16px" class="submitBack">
               <el-button @click="backIndex=-1">取消</el-button>
-              <el-button type="primary" @click="logInsert" >确定</el-button>
+              <el-button type="primary" @click="logInsert">确定</el-button>
             </div>
           </div>
         </div>
         <!-- 查看 -->
-        <div v-if="backIndex==0" class="right" >
+        <div v-if="backIndex==0" class="right">
           <div v-show="tableList.length>0">
             <div>查看</div>
             <div class="look_box">
               <div class="look_div">
                 <div class="top m_clearLR">
                   <div class="m_floatL">
-                    <img :src="lookData.headImage ? lookData.headImage : 'static/img/logo.png'" alt="">
+                    <img :src="lookData.headImage ? lookData.headImage : 'static/img/logo.png'" alt />
                   </div>
                   <div class="m_floatL">
                     <div class="name">{{ lookData.nickName || '空' }}</div>
@@ -379,13 +466,20 @@
                   </div>
                   <div class="item feedback-info">
                     <div>反馈内容：</div>
-                    <div style="margin-left:16px;word-break: break-all;" class="backInfo">{{ lookData.description }}</div>
+                    <div
+                      style="margin-left:16px;word-break: break-all;"
+                      class="backInfo"
+                    >{{ lookData.description }}</div>
                   </div>
                 </div>
                 <div class="fdTextBox">
                   <div class="tDiv_img m_clearLR">
-                    <div v-for="(pic,index) in lookData.pathList" :key="index" class="m_floatL tDiv_imgDiv">
-                      <img :src="pic" alt >
+                    <div
+                      v-for="(pic,index) in lookData.pathList"
+                      :key="index"
+                      class="m_floatL tDiv_imgDiv"
+                    >
+                      <img :src="pic" alt />
                       <div class="edit" @click="enlargeImage(pic)">
                         <i class="iconfont iconfangdachakan" />
                       </div>
@@ -404,7 +498,6 @@
           :current-page.sync="listQuery.pageNo"
           :page-sizes="[10, 30, 50]"
           :page-size="listQuery.pageSize"
-
           :total="totalnumber"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange($event, listQuery)"
@@ -414,7 +507,13 @@
     </div>
 
     <!-- 新增、编辑反馈 -->
-    <el-dialog :close-on-click-modal="false" :visible.sync="showDialogBack" :title="textMap[dialogStatus]" class="dialog" width="500px">
+    <el-dialog
+      :close-on-click-modal="false"
+      :visible.sync="showDialogBack"
+      :title="textMap[dialogStatus]"
+      class="dialog"
+      width="500px"
+    >
       <el-form
         ref="ruleForm"
         :model="ruleForm"
@@ -438,18 +537,9 @@
             autocomplete="off"
           />
         </el-form-item>
-        <el-form-item label="问题类型：" >
-          <el-select
-            v-model="ruleForm.type"
-            filterable
-            placeholder="请选择问题类型"
-          >
-            <el-option
-              v-for="item in types"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            />
+        <el-form-item label="问题类型：">
+          <el-select v-model="ruleForm.type" filterable placeholder="请选择问题类型">
+            <el-option v-for="item in types" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="联系方式：" prop="version" class="version">
@@ -462,7 +552,6 @@
           />
         </el-form-item>
         <el-form-item label="反馈内容：" prop="tips" class="version">
-
           <div class="remarks">
             <el-input
               v-model="ruleForm.description"
@@ -476,115 +565,179 @@
         </el-form-item>
         <el-form-item class="submit">
           <el-button @click="showDialogBack=false">取消</el-button>
-          <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()" >确定</el-button>
+          <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">确定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
     <!-- 图片放大 -->
-    <el-dialog :visible.sync="isEnlarge" :modal-append-to-body="false" :show-close="false" :width="widthauto" title class="imgdialog">
-      <img :src="imgPath" class="magnifier" @load="onLoad">
+    <el-dialog
+      :visible.sync="isEnlarge"
+      :modal-append-to-body="false"
+      :show-close="false"
+      :width="widthauto"
+      title
+      class="imgdialog"
+    >
+      <img :src="imgPath" class="magnifier" @load="onLoad" />
     </el-dialog>
   </div>
 </template>
 <script>
-import { mapGetters } from 'vuex'
-import {getFeedFields,savefeedFields, feedbackNewList, feedbacklog_insert, feedbacklog_list, feedback_insert, feedback_list, feedbacklog_export_list, handler_list, feedback_reply, feedback_reply_list } from '@/api/api'
-import moment from 'moment'
+import { mapGetters } from 'vuex';
+import {
+  getFeedFields,
+  savefeedFields,
+  feedbackNewList,
+  feedbacklog_insert,
+  feedbacklog_list,
+  feedback_insert,
+  feedback_list,
+  feedbacklog_export_list,
+  handler_list,
+  feedback_reply,
+  feedback_reply_list,
+} from '@/api/api';
+import moment from 'moment';
 export default {
   filters: {
-
     formatDateTime(time) {
       if (!time) {
         return '';
       }
       return moment(time).format('YYYY-MM-DD HH:mm:ss');
-    }
+    },
   },
   computed: {
-    ...mapGetters([
-      'permissionData'
-    ]),
+    ...mapGetters(['permissionData']),
     getStatus() {
-      return function(index) {
-        var name = ''
+      return function (index) {
+        var name = '';
         for (var i = 0; i < this.status.length; i++) {
           if (this.status[i].id == index) {
-            name = this.status[i].name
+            name = this.status[i].name;
           }
         }
-        return name
-      }
+        return name;
+      };
     },
     equips() {
-      return [{ id: '', name: '全部' }, { id: '1', name: 'Android端' }, { id: '2', name: 'IOS端' }, { id: '3', name: 'PC端' }, { id: '4', name: '官网' }]
+      return [
+        { id: '', name: '全部' },
+        { id: '1', name: 'Android端' },
+        { id: '2', name: 'IOS端' },
+        { id: '3', name: 'PC端' },
+        { id: '4', name: '官网' },
+      ];
     },
     feedTypes() {
-      return [{ id: '', name: '全部' }, { id: '1', name: '使用建议' }, { id: '2', name: '发现BUG' }, { id: '3', name: '想要的功能' }, { id: '4', name: '其他问题' }]
-    }
+      return [
+        { id: '', name: '全部' },
+        { id: '1', name: '使用建议' },
+        { id: '2', name: '发现BUG' },
+        { id: '3', name: '想要的功能' },
+        { id: '4', name: '其他问题' },
+      ];
+    },
   },
   data() {
     return {
       backIndex: -1,
       lookData: {},
-      proList:[],
+      proList: [],
       fdBoxIndex: 0,
-      selectIndex:0,
+      selectIndex: 0,
       dialogStatus: 'create',
       textMap: {
         update: '编辑',
-        create: '新增'
+        create: '新增',
       },
       currentpage: 1,
       selectDate2: [],
       pickerOptionsBack: {
         disabledDate(time) {
-          return time.getTime() >= Date.now()
+          return time.getTime() >= Date.now();
         },
         shortcuts: [
           {
             text: '最近一周',
             onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-              picker.$emit('pick', [start, end])
-            }
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            },
           },
           {
             text: '最近一个月',
             onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-              picker.$emit('pick', [start, end])
-            }
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            },
           },
           {
             text: '最近三个月',
             onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-              picker.$emit('pick', [start, end])
-            }
-          }
-        ]
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            },
+          },
+        ],
       },
       totalnumber: 0,
       currentStatu: 0,
-      msgings: [{ id: 0, name: '您好，已收到您的反馈，您反馈的问题我们已经列入更新计划中，在未来更新的版本中将会进行修改。' },
-        { id: 1, name: '您好，您反馈的打印问题可以先和您的打印机厂家或客服联系，确保您的打印机安装正常并能正确打印出测试页再使用本软件打印。' },
-        { id: 2, name: '您好，您反馈的搜索不到打印机蓝牙问题我们已收到，再确认手机蓝牙是否已打开，如已打开蓝牙，请在我们的打印软件中搜索蓝牙，不要在系统设置中搜索哦。' },
-        { id: 3, name: '您好，您反馈的以前编辑的模板更新软件后再打开内容有错位问题我们已收到，这个情况是因为模板是由早期的软件版本创建的，当时的模板保存方式与现在有些差异，你需要用新版本的软件打开模板逐个调整好内容后再重新保存一次就可以解决了。' }],
-      types: [{ id: 1, name: '使用建议 ' }, { id: 2, name: '发现BUG' }, { id: 3, name: '想要的功能' }, { id: 4, name: '其他问题' }],
-      status: [{ id: 1, name: '待处理 ' }, { id: 2, name: '待评估' }, { id: 3, name: '待开发' }, { id: 4, name: '已完结' }, { id: 5, name: '已拒绝' }],
-      opStatus: [{ id: '', name: '全部 ' }, { id: 1, name: '待处理 ' }, { id: 2, name: '待评估' }, { id: 3, name: '待开发' }, { id: 4, name: '已完结' }, { id: 5, name: '已拒绝' }],
+      msgings: [
+        {
+          id: 0,
+          name:
+            '您好，已收到您的反馈，您反馈的问题我们已经列入更新计划中，在未来更新的版本中将会进行修改。',
+        },
+        {
+          id: 1,
+          name:
+            '您好，您反馈的打印问题可以先和您的打印机厂家或客服联系，确保您的打印机安装正常并能正确打印出测试页再使用本软件打印。',
+        },
+        {
+          id: 2,
+          name:
+            '您好，您反馈的搜索不到打印机蓝牙问题我们已收到，再确认手机蓝牙是否已打开，如已打开蓝牙，请在我们的打印软件中搜索蓝牙，不要在系统设置中搜索哦。',
+        },
+        {
+          id: 3,
+          name:
+            '您好，您反馈的以前编辑的模板更新软件后再打开内容有错位问题我们已收到，这个情况是因为模板是由早期的软件版本创建的，当时的模板保存方式与现在有些差异，你需要用新版本的软件打开模板逐个调整好内容后再重新保存一次就可以解决了。',
+        },
+      ],
+      types: [
+        { id: 1, name: '使用建议 ' },
+        { id: 2, name: '发现BUG' },
+        { id: 3, name: '想要的功能' },
+        { id: 4, name: '其他问题' },
+      ],
+      status: [
+        { id: 1, name: '待处理 ' },
+        { id: 2, name: '待评估' },
+        { id: 3, name: '待开发' },
+        { id: 4, name: '已完结' },
+        { id: 5, name: '已拒绝' },
+      ],
+      opStatus: [
+        { id: '', name: '全部 ' },
+        { id: 1, name: '待处理 ' },
+        { id: 2, name: '待评估' },
+        { id: 3, name: '待开发' },
+        { id: 4, name: '已完结' },
+        { id: 5, name: '已拒绝' },
+      ],
       ruleForm: {
         equip: '1',
         phone: '',
         type: 1,
         version: '',
-        description: ''
+        description: '',
       },
       description: '',
       selectExcelData: [],
@@ -592,7 +745,7 @@ export default {
       backDesc: '',
       handler: '',
       showDialogBack: false,
-      screenShow:false,
+      screenShow: false,
       statusData: [],
       isAdd: false,
       listQuery: {
@@ -603,10 +756,10 @@ export default {
         handler: '',
         status: '',
         pageNo: 1,
-        pageSize: 10
+        pageSize: 10,
       },
       allCheck: false,
-      tempDataSort:[],
+      tempDataSort: [],
       seeInfoData: [],
       tableList: [],
       isFeed: true,
@@ -616,22 +769,25 @@ export default {
       cuurentId: '',
       selectsHandler: [],
       msging: '',
-      activeIndex: -1
-    }
+      activeIndex: -1,
+    };
   },
   created() {
-    this.getFileds()
-    handler_list().then(res => {
-      this.selectsHandler = Object.assign([], res.data)
-      this.handlers = res.data
-      this.handler = res.data[0].id
-      this.handlers.splice(0, 0, { id: '', account: '全部' })
-    })
-    this.listapi = feedbackNewList
+    this.getFileds();
+    handler_list().then((res) => {
+      this.selectsHandler = Object.assign([], res.data);
+      this.handlers = res.data;
+      this.handler = res.data[0].id;
+      this.handlers.splice(0, 0, { id: '', account: '全部' });
+    });
+    this.listapi = feedbackNewList;
     setTimeout(() => {
-      this.selectDate2 = ['' + moment(new Date()).subtract(7, 'day').format('YYYY-MM-DD') + '', '' + moment(new Date()).subtract(0, 'day').format('YYYY-MM-DD') + '']
-      this.getList()
-    }, 0)
+      this.selectDate2 = [
+        '' + moment(new Date()).subtract(7, 'day').format('YYYY-MM-DD') + '',
+        '' + moment(new Date()).subtract(0, 'day').format('YYYY-MM-DD') + '',
+      ];
+      this.getList();
+    }, 0);
 
     // window.onscroll = e => {
     //   // console.log(document.querySelector('.backContent').offsetTop)
@@ -652,13 +808,13 @@ export default {
     // }
   },
   methods: {
-    openScreenShow(){
-      this.tempDataSort = JSON.parse(JSON.stringify(this.proList))
-      this.screenShow = true
+    openScreenShow() {
+      this.tempDataSort = JSON.parse(JSON.stringify(this.proList));
+      this.screenShow = true;
     },
     cancel() {
       this.screenShow = false;
-      this.proList =  this.tempDataSort
+      this.proList = this.tempDataSort;
     },
     comfirmShows() {
       const tempData = Object.assign([], this.proList);
@@ -670,39 +826,40 @@ export default {
           element.status = 0;
         }
       });
-      savefeedFields({ feedFields: JSON.stringify(this.proList) }).then(res => {
-        if (res.code == 100) {
-          this.screenShow = false;
-          this.$message.success('保存成功');
+      savefeedFields({ feedFields: JSON.stringify(this.proList) }).then(
+        (res) => {
+          if (res.code == 100) {
+            this.screenShow = false;
+            this.$message.success('保存成功');
+          }
         }
-      });
+      );
     },
     allselect() {
       for (let i = 0; i < this.proList.length; i++) {
         this.proList[i].flag = this.allCheck;
       }
     },
-    getFileds(){
-      getFeedFields().then(res => {
-        console.log(res, 111111111111111111111)
-      for (let i = 0; i < res.data.length; i++) {
-        res.data[i].mType = 'input';
-        if (res.data[i].attribute == 'buyDate') {
-          res.data[i].mType = 'date';
+    getFileds() {
+      getFeedFields().then((res) => {
+        for (let i = 0; i < res.data.length; i++) {
+          res.data[i].mType = 'input';
+          if (res.data[i].attribute == 'buyDate') {
+            res.data[i].mType = 'date';
+          }
+          if (res.data[i].attribute == 'expiresDate') {
+            res.data[i].mType = 'date';
+          }
+          if (res.data[i].status === 1) {
+            res.data[i].flag = true;
+            this.allCheck = true;
+          } else {
+            res.data[i].flag = false;
+          }
         }
-        if (res.data[i].attribute == 'expiresDate') {
-          res.data[i].mType = 'date';
-        }
-        if (res.data[i].status === 1) {
-          res.data[i].flag = true;
-          this.allCheck = true;
-        } else {
-          res.data[i].flag = false;
-        }
-      }
-      // res.data.splice(0,0,{})
-      this.proList = res.data;
-    });
+        // res.data.splice(0,0,{})
+        this.proList = res.data;
+      });
     },
     handleDragStart(e, item) {
       this.dragging = item;
@@ -728,66 +885,70 @@ export default {
       this.proList = newItems;
     },
     changeFdBoxIndex(item, index) {
-      this.fdBoxIndex = index
-      this.changeLook(item, this.fdBoxIndex)
+      this.fdBoxIndex = index;
+      this.changeLook(item, this.fdBoxIndex);
     },
     changeStatus(index) {
       if (this.statusData.enable) {
-        this.statusData.status = index + 1
+        this.statusData.status = index + 1;
       }
     },
     msgChange() {
-      this.description = this.msgings[this.msging].name
+      this.description = this.msgings[this.msging].name;
     },
     msgInsert() {
-      feedback_reply({ feedbackId: this.cuurentId, description: this.description }).then(res => {
-        this.$message.success('回复成功')
-        this.msging = ''
-        this.description = ''
-        this.getList()
-        this.seeInfo({ id: this.cuurentId }, this.fdBoxIndex)
-      })
+      feedback_reply({
+        feedbackId: this.cuurentId,
+        description: this.description,
+      }).then((res) => {
+        this.$message.success('回复成功');
+        this.msging = '';
+        this.description = '';
+        this.getList();
+        this.seeInfo({ id: this.cuurentId }, this.fdBoxIndex);
+      });
     },
     logInsert() {
       feedbacklog_insert({
         feedbackId: this.cuurentId,
         handler: this.handler,
         status: this.statusData.status,
-        desc: this.backDesc
-      }).then(res => {
-        this.$message.success('操作成功')
-        this.getList()
-        this.changeOp(this.cuurentId, this.fdBoxIndex)
-      })
+        desc: this.backDesc,
+      }).then((res) => {
+        this.$message.success('操作成功');
+        this.getList();
+        this.changeOp(this.cuurentId, this.fdBoxIndex);
+      });
     },
     resetLook() {
       // this.lookData = this.lookData
-      this.backIndex = -1
+      this.backIndex = -1;
     },
     changeLook(item, index) {
-      this.selectIndex = 0
-      this.fdBoxIndex = index
-      this.lookData = item
-      this.backIndex = 0
+      this.selectIndex = 0;
+      this.fdBoxIndex = index;
+      this.lookData = item;
+      this.backIndex = 0;
       // this.$refs.singleTable.setCurrentRow(this.tableList[index])
-      this.activeIndex = index
+      this.activeIndex = index;
     },
     seeInfo(item, index) {
-      this.selectIndex = 2
-      this.fdBoxIndex = index
-      this.cuurentId = item.id
-      this.backIndex = 1
-      this.msging = ''
-      this.description = ''
+      this.selectIndex = 2;
+      this.fdBoxIndex = index;
+      this.cuurentId = item.id;
+      this.backIndex = 1;
+      this.msging = '';
+      this.description = '';
       // this.$refs.singleTable.setCurrentRow(this.tableList[index])
-      this.activeIndex = index
-      feedback_reply_list({ feedbackId: item.id }).then(res => {
-        this.seeInfoData = res.data
+      this.activeIndex = index;
+      feedback_reply_list({ feedbackId: item.id }).then((res) => {
+        this.seeInfoData = res.data;
         setTimeout(() => {
-          document.querySelector('.msg_box').scrollTop = document.querySelector('.msg_box').scrollHeight
+          document.querySelector('.msg_box').scrollTop = document.querySelector(
+            '.msg_box'
+          ).scrollHeight;
         }, 0);
-
-      })
+      });
     },
     resetTemp() {
       this.ruleForm = {
@@ -795,53 +956,55 @@ export default {
         phone: '',
         type: 1,
         version: '',
-        description: ''
-      }
+        description: '',
+      };
     },
     openAdd() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.showDialogBack = true
+      this.resetTemp();
+      this.dialogStatus = 'create';
+      this.showDialogBack = true;
       this.$nextTick(() => {
-        this.$refs['ruleForm'].clearValidate()
-      })
+        this.$refs['ruleForm'].clearValidate();
+      });
     },
     createData() {
-      this.$refs.ruleForm.validate(async valid => {
+      this.$refs.ruleForm.validate(async (valid) => {
         if (valid) {
-          feedback_insert(this.ruleForm).then(res => {
-            this.fdBoxIndex = 0
-            this.isAdd = true
-
-            this.showDialogBack = false
-            this.getList()
-            this.$message.success('添加成功')
-          })
+          feedback_insert(this.ruleForm).then((res) => {
+            this.fdBoxIndex = 0;
+            this.isAdd = true;
+            this.showDialogBack = false;
+            this.getList();
+            this.$message.success('添加成功');
+          });
         }
-      })
+      });
     },
     testHF(id) {
-      feedback_reply({ feedbackId: id, description: 'zzmtest' }).then(res => {
-        feedback_reply_list({ feedbackId: id })
-      })
+      feedback_reply({ feedbackId: id, description: 'zzmtest' }).then((res) => {
+        feedback_reply_list({ feedbackId: id });
+      });
     },
     changeOp(id, index) {
-      this.selectIndex = 1
-      this.fdBoxIndex = index
-      this.backIndex = 2
-      this.cuurentId = id
-      this.backDesc = ''
-      this.$refs.singleTable.setCurrentRow(this.tableList[index])
-      this.activeIndex = index
-      feedbacklog_list({ feedbackId: id }).then(res => {
-        this.statusData = res.data
-        this.statusData.tempStatus = this.statusData.status
-        this.handler = res.data.handlerId
-      })
+      this.selectIndex = 1;
+      this.fdBoxIndex = index;
+      this.backIndex = 2;
+      this.cuurentId = id;
+      this.backDesc = '';
+      this.$refs.singleTable.setCurrentRow(this.tableList[index]);
+      this.activeIndex = index;
+      feedbacklog_list({ feedbackId: id }).then((res) => {
+        res.data.enable = res.data.status === 4 ? false : true;
+        this.statusData = res.data;
+
+        this.statusData.tempStatus = this.statusData.status;
+
+        this.handler = res.data.handlerId;
+      });
     },
     handleDownload() {
       if (this.selectExcelData.length <= 0) {
-        const h = this.$createElement
+        const h = this.$createElement;
         this.$msgbox({
           title: '消息',
           message: h('p', null, [h('span', null, '您确定要导出所有数据吗')]),
@@ -850,26 +1013,39 @@ export default {
           cancelButtonText: '取消',
           beforeClose: (action, instance, done) => {
             if (action === 'confirm') {
-              instance.confirmButtonLoading = true
-              instance.confirmButtonText = '执行中...'
-              done()
+              instance.confirmButtonLoading = true;
+              instance.confirmButtonText = '执行中...';
+              done();
               if (this.exportData.length <= 0) {
-                var temp = { 'companyName': '', 'currentStatuss': '', 'content': '', 'nickName': '',
-                  'phone': '', 'equip': '', 'version': '', 'equipment': '',
-                  'headImage': '', 'type': '', 'description': '', 'createTime': '', 'pathList': '' }
+                var temp = {
+                  companyName: '',
+                  currentStatuss: '',
+                  content: '',
+                  nickName: '',
+                  phone: '',
+                  equip: '',
+                  version: '',
+                  equipment: '',
+                  headImage: '',
+                  type: '',
+                  description: '',
+                  createTime: '',
+                  pathList: '',
+                };
                 // this.selectExcelData.push(temp)
-                this.exportData.push(temp)
+                this.exportData.push(temp);
               }
-              this.selectExcelData = this.exportData.list
-              this.handleDownload()
+              this.selectExcelData = this.exportData;
+              this.handleDownload();
             } else {
-              done()
+              done();
             }
-            instance.confirmButtonLoading = false
-          }
-        }).then(action => {})
-        .catch(() => {})
-        return
+            instance.confirmButtonLoading = false;
+          },
+        })
+          .then((action) => {})
+          .catch(() => {});
+        return;
       }
       // for (let i = 0; i < this.selectExcelData.length; i++) {
       //   if (this.selectExcelData[i].id) {
@@ -879,112 +1055,152 @@ export default {
       //     this.selectExcelData[i].createTime = moment(this.selectExcelData[i].createTime).format('YYYY-MM-DD HH:mm:ss')
       //   }
       // }
-      this.bodys = []
-      this.headers = []
+      this.bodys = [];
+      this.headers = [];
       for (let i = 0; i < this.proList.length; i++) {
         if (this.proList[i].flag) {
-          this.bodys.push(this.proList[i].name)
-          this.headers.push(this.proList[i].attribute)
+          this.bodys.push(this.proList[i].name);
+          this.headers.push(this.proList[i].attribute);
         }
       }
       for (let i = 0; i < this.selectExcelData.length; i++) {
-        this.selectExcelData[i].createTime = moment(this.selectExcelData[i].createTime).format('YYYY-MM-DD')
-        this.selectExcelData[i].equip = this.selectExcelData[i].equip==1?'安卓':this.selectExcelData[i].equip==3?'PC端':this.selectExcelData[i].equip==2?'IOS端':'官网'
+        this.selectExcelData[i].createTime = moment(
+          this.selectExcelData[i].createTime
+        ).format('YYYY-MM-DD');
+        this.selectExcelData[i].equip =
+          this.selectExcelData[i].equip == 1
+            ? '安卓'
+            : this.selectExcelData[i].equip == 3
+            ? 'PC端'
+            : this.selectExcelData[i].equip == 2
+            ? 'IOS端'
+            : '官网';
       }
       // this.downloadLoading = true;
-      import('@/vendor/Export2Excel').then(excel => {
+      import('@/vendor/Export2Excel').then((excel) => {
         const tHeader = this.bodys;
         const filterVal = this.headers;
-        const data = this.formatJson(filterVal, this.selectExcelData)
+        const data = this.formatJson(filterVal, this.selectExcelData);
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'template-list'
-        })
-        this.selectExcelData = []
+          filename: 'template-list',
+        });
+        this.selectExcelData = [];
         // this.downloadLoading = false;
-      })
+      });
     },
     formatJson(filterVal, jsonData) {
-      return jsonData.map(v =>
-        filterVal.map(j => {
+      return jsonData.map((v) =>
+        filterVal.map((j) => {
           if (j === 'timestamp') {
-            return parseTime(v[j])
+            return parseTime(v[j]);
           } else {
-            return v[j]
+            return v[j];
           }
         })
-      )
+      );
     },
     getList() {
-      this.currentpage = 1
-      this.listQuery.pageNo = 1
+      this.currentpage = 1;
+      this.listQuery.pageNo = 1;
       if (this.selectDate2) {
-        this.listQuery.startTime = this.selectDate2[0]
-        this.listQuery.endTime = this.selectDate2[1]
+        if(this.listQuery.keyword.length>0){
+          delete this.listQuery.startTime
+          delete this.listQuery.endTime
+        }else{
+          this.listQuery.startTime = this.selectDate2[0];
+          this.listQuery.endTime = this.selectDate2[1];
+        }
+
       }
-      feedbackNewList(this.listQuery).then(res => {
-        this.lookData = res.data.list.length > 0 ? res.data.list[0] : []
-        res.data.list.forEach((e,index)=>{
-          e.index = index
-        })
-        this.tableList = res.data.list
-        this.totalnumber = res.data.total
-         document.addEventListener('keydown',(event)=>{
-
-          if(event.keyCode == 38&&this.fdBoxIndex>0){
-
-            if(this.selectIndex == 0){
-              this.changeLook(this.tableList[this.fdBoxIndex-1] ,this.fdBoxIndex-1)
-            }else if(this.selectIndex == 1){
-              this.changeOp(this.tableList[this.fdBoxIndex-1].id ,this.fdBoxIndex-1)
-            }else{
-              this.seeInfo(this.tableList[this.fdBoxIndex-1] ,this.fdBoxIndex-1)
+      feedbackNewList(this.listQuery).then((res) => {
+        this.lookData = res.data.list.length > 0 ? res.data.list[0] : [];
+        res.data.list.forEach((e, index) => {
+          e.index = index;
+        });
+        this.tableList = res.data.list;
+        this.totalnumber = res.data.total;
+        document.addEventListener('keydown', (event) => {
+          if (event.keyCode == 38 && this.fdBoxIndex > 0) {
+            if (this.selectIndex == 0) {
+              this.changeLook(
+                this.tableList[this.fdBoxIndex - 1],
+                this.fdBoxIndex - 1
+              );
+            } else if (this.selectIndex == 1) {
+              this.changeOp(
+                this.tableList[this.fdBoxIndex - 1].id,
+                this.fdBoxIndex - 1
+              );
+            } else {
+              this.seeInfo(
+                this.tableList[this.fdBoxIndex - 1],
+                this.fdBoxIndex - 1
+              );
             }
-          }else if(event.keyCode == 40&&this.fdBoxIndex<this.tableList.length-1){
-
-            if(this.selectIndex == 0){
-              this.changeLook(this.tableList[this.fdBoxIndex+1] ,this.fdBoxIndex+1)
-            }else if(this.selectIndex == 1){
-              this.changeOp(this.tableList[this.fdBoxIndex+1].id ,this.fdBoxIndex+1)
-            }else{
-              this.seeInfo(this.tableList[this.fdBoxIndex+1] ,this.fdBoxIndex+1)
+          } else if (
+            event.keyCode == 40 &&
+            this.fdBoxIndex < this.tableList.length - 1
+          ) {
+            if (this.selectIndex == 0) {
+              this.changeLook(
+                this.tableList[this.fdBoxIndex + 1],
+                this.fdBoxIndex + 1
+              );
+            } else if (this.selectIndex == 1) {
+              this.changeOp(
+                this.tableList[this.fdBoxIndex + 1].id,
+                this.fdBoxIndex + 1
+              );
+            } else {
+              this.seeInfo(
+                this.tableList[this.fdBoxIndex + 1],
+                this.fdBoxIndex + 1
+              );
             }
           }
         });
-        if (this.isAdd||this.tableList.length>0) {
-          this.isAdd = false
-          this.changeLook(this.tableList[0], 0)
+        if (this.isAdd || this.tableList.length > 0) {
+          this.isAdd = false;
+          this.changeLook(this.tableList[0], 0);
         }
-      })
-      var tempData = {}
-      tempData.pageNo = this.listQuery.pageNo
-      tempData.pageSize = this.listQuery.pageSize
-      tempData.keyword = this.listQuery.keyword
-      tempData.handler = this.listQuery.handler
-      tempData.equip = this.listQuery.equip
-      tempData.status = this.listQuery.status
-      tempData.startTime = this.listQuery.startTime
-      tempData.endTime = this.listQuery.endTime
-      feedbacklog_export_list(tempData).then(res => {
-        this.exportData = res.data
-      })
+      });
+      var tempData = {};
+      tempData.keyword = this.listQuery.keyword;
+      tempData.handler = this.listQuery.handler;
+      tempData.equip = this.listQuery.equip;
+      tempData.status = this.listQuery.status;
+      tempData.startTime = this.listQuery.startTime;
+      tempData.endTime = this.listQuery.endTime;
+      feedbacklog_export_list(tempData).then((res) => {
+        this.exportData = res.data;
+        this.selectExcelData = [];
+      });
     },
     formatDate(date) {
-      return moment(date).format('YYYY-MM-DD')
+      return moment(date).format('YYYY-MM-DD');
     },
-    rowClick(row,index,index2) {
-      this.changeLook(row,row.index)
+    rowClick(row, index, index2) {
+      this.changeLook(row, row.index);
       // this.$refs.singleTable.setCurrentRow(this.tableList[this.activeIndex])
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped lang="scss">
-.listSet .el-dialog__wrapper{
-  top: 51px;
+.el-table /deep/.cell.el-tooltip {
+  white-space: pre-wrap;
+}
+.listSet {
+  & > div {
+    display: flex;
+  }
+  .el-dialog__wrapper {
+    top: 51px;
     left: -50px;
+  }
 }
 .remarks {
   width: 300px;
@@ -1000,7 +1216,7 @@ export default {
     resize: none !important;
   }
   span {
-    font-family:PingFangSC-Regular,PingFang SC;
+    font-family: PingFangSC-Regular, PingFang SC;
     position: absolute;
     bottom: 16px;
     right: 16px;
@@ -1008,9 +1224,10 @@ export default {
     font-size: 12px;
   }
 }
-/deep/.el-dialog{
-  .el-input__inner,.el-input--medium{
-    width:300px;
+/deep/.el-dialog {
+  .el-input__inner,
+  .el-input--medium {
+    width: 300px;
   }
 }
 .nav-wrap {
@@ -1026,9 +1243,9 @@ export default {
     .exportAdd {
       display: flex;
       display: inline-block;
-      margin-left:50px;
+      margin-left: 50px;
       height: 24px;
-      margin-top:14px;
+      margin-top: 14px;
       margin-right: 12px;
       text-align: center;
       // background: #2274e5;
@@ -1036,16 +1253,15 @@ export default {
       font-size: 18px;
       i {
         font-size: 22px;
-    }
-
+      }
     }
     .add-wrap {
       font-size: 16px;
       cursor: pointer;
       &:hover {
-        color: rgba(34, 116, 229, .8);
+        color: rgba(34, 116, 229, 0.8);
         .add {
-          background: rgba(34, 116, 229, .8);
+          background: rgba(34, 116, 229, 0.8);
         }
       }
       .add {
@@ -1065,23 +1281,28 @@ export default {
         }
       }
     }
-    .configuration, .export-excel {
+    .configuration,
+    .export-excel {
       margin-left: 48px;
       font-size: 16px;
+      display: flex;
       cursor: pointer;
       &:hover {
-        color: rgba(34, 116, 229, .8);
+        color: rgba(34, 116, 229, 0.8);
       }
       i {
         margin-right: 16px;
         font-size: 24px;
+      }
+      div {
+        line-height: 27px;
       }
     }
   }
   .search-wrap {
     margin-right: 60px;
     position: relative;
-    /deep/  .el-input__inner {
+    /deep/ .el-input__inner {
       width: 300px;
       height: 40px;
       border-radius: 8px 0 0 8px;
@@ -1092,7 +1313,7 @@ export default {
       outline: none;
       width: 60px;
       height: 40px;
-      top:0px;
+      top: 0px;
       text-align: center;
       line-height: 40px;
       position: absolute;
@@ -1101,7 +1322,7 @@ export default {
       border-radius: 0 8px 8px 0;
       cursor: pointer;
       &:hover {
-        background: rgba(34, 116, 229, .8);
+        background: rgba(34, 116, 229, 0.8);
       }
       i {
         color: #fff;
@@ -1113,32 +1334,32 @@ export default {
 .echarts-time {
   margin: 0px 40px;
   display: block;
-// @media screen and (min-width: 320px) and (max-width: 1556px){
-//   .m_feedback{
-//     float: left;
-//   }
-// }
-@media screen and (min-width: 320px) and (max-height:1500px){
-      .m_feedback{
-        float:left;
-      }
+  // @media screen and (min-width: 320px) and (max-width: 1556px){
+  //   .m_feedback{
+  //     float: left;
+  //   }
+  // }
+  @media screen and (min-width: 320px) and (max-height: 1500px) {
+    .m_feedback {
+      float: left;
+    }
   }
-  @media screen and (min-width: 1501px){
-      .m_feedback{
-        float:right;
-      }
+  @media screen and (min-width: 1501px) {
+    .m_feedback {
+      float: right;
+    }
   }
-  &>div{
+  & > div {
     // margin-top:32px;
     margin-bottom: 23px;
   }
 }
-.backContent{
+.backContent {
   display: flex;
   justify-content: space-between;
   margin: 0 40px;
 
-  .left{
+  .left {
     // border:1px solid #ccc;
     border-radius: 8px;
     width: 1046px;
@@ -1150,7 +1371,7 @@ export default {
       height: 596px !important;
     }
     .is-red {
-      color: #FF0000;
+      color: #ff0000;
     }
     .operation-icon {
       margin-left: 25px;
@@ -1161,12 +1382,12 @@ export default {
       }
     }
   }
-  .right{
+  .right {
     min-width: 500px;
     width: 500px;
-    padding:24px 32px;
-    margin-left:32px;
-    border:1px solid #ebeef5;
+    padding: 24px 32px;
+    margin-left: 32px;
+    border: 1px solid #ebeef5;
     background-color: #fff;
     border-radius: 8px;
     height: 666px;
@@ -1178,129 +1399,131 @@ export default {
       height: 160px;
       background: rgba(34, 116, 229, 0.05);
       border-radius: 4px;
-      border: 1px solid #F5F5F5;
+      border: 1px solid #f5f5f5;
       padding: 12px 16px;
       &:focus {
         border-color: #409eff;
       }
     }
-    .btnAb{
+    .btnAb {
       position: absolute;
       // top:400px;
-      bottom :32px;
-      left:32px;
+      bottom: 32px;
+      left: 32px;
       right: 32px;
     }
-    .msging_box{
-      font-size:14px;
+    .msging_box {
+      font-size: 14px;
 
-      font-family:PingFangSC-Medium,PingFang SC;
-      font-weight:500;
-      color:rgba(102,102,102,1);
-      .selectInput{
-        margin-top:9px;
-        /deep/.el-input__inner,/deep/.el-input--medium{
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 500;
+      color: rgba(102, 102, 102, 1);
+      .selectInput {
+        margin-top: 9px;
+        /deep/.el-input__inner,
+        /deep/.el-input--medium {
           width: 433px;
         }
       }
-      .remarks{
-        width:433px;
-        margin-top:16px;
-        textarea{
+      .remarks {
+        width: 433px;
+        margin-top: 16px;
+        textarea {
           resize: none !important;
         }
       }
     }
-    .backStatu{
-      margin-top:24px;
+    .backStatu {
+      margin-top: 24px;
 
       display: flex;
-      /deep/.el-input__inner,/deep/.el-input--medium{
-          width:378px;
-        }
-      .title{
-        width:55px;
-        height:36px;
-        font-size:14px;
-        font-family:PingFangSC-Medium,PingFang SC;
-        font-weight:500;
-        color:rgba(102,102,102,1);
-        line-height:36px;
+      /deep/.el-input__inner,
+      /deep/.el-input--medium {
+        width: 378px;
+      }
+      .title {
+        width: 55px;
+        height: 36px;
+        font-size: 14px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: rgba(102, 102, 102, 1);
+        line-height: 36px;
       }
     }
-    .submitBack{
-      margin-top:16px;
+    .submitBack {
+      margin-top: 16px;
       float: right;
     }
-    .remarks_box{
-      margin-top:24px;
+    .remarks_box {
+      margin-top: 24px;
       display: flex;
-      .remarks{
-        width:465px;
+      .remarks {
+        width: 465px;
       }
-      .title{
-        width:58px;
+      .title {
+        width: 58px;
         text-align: right;
-        padding-right:16px;
-        height:20px;
-        margin-left:-10px;
-        font-size:14px;
-        font-family:PingFangSC-Medium,PingFang SC;
-        font-weight:500;
-        color:rgba(102,102,102,1);
-        line-height:20px;
+        padding-right: 16px;
+        height: 20px;
+        margin-left: -10px;
+        font-size: 14px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: rgba(102, 102, 102, 1);
+        line-height: 20px;
       }
     }
-    .status{
+    .status {
       display: flex;
       // margin-top:300px;
-      &.active{
-        .item{
+      &.active {
+        .item {
           background-color: #f5f5f5 !important;
         }
       }
-      .item{
+      .item {
         cursor: pointer;
-        width:86px;
+        width: 86px;
         text-align: center;
         line-height: 32px;
         margin-left: 24px;
-        height:32px;
-        border-radius:100px;
+        height: 32px;
+        border-radius: 100px;
 
-        border:1px solid rgba(195,195,195,1);
-        font-size:14px;
-        font-family:PingFangSC-Medium,PingFang SC;
-        font-weight:500;
-        color:rgba(102,102,102,1);
-        &.active{
-          border:1px solid rgba(34,116,229,1);
-          color:rgba(34,116,229,1);
+        border: 1px solid rgba(195, 195, 195, 1);
+        font-size: 14px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: rgba(102, 102, 102, 1);
+        &.active {
+          border: 1px solid rgba(34, 116, 229, 1);
+          color: rgba(34, 116, 229, 1);
           background-color: #fff !important;
         }
       }
 
-      .title{
-        margin-top:5px;
-        width:46px;
+      .title {
+        margin-top: 5px;
+        width: 46px;
         text-align: right;
-        height:20px;
-        font-size:14px;
-        font-family:PingFangSC-Medium,PingFang SC;
-        font-weight:500;
-        color:rgba(102,102,102,1);
-        line-height:20px;
+        height: 20px;
+        font-size: 14px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: rgba(102, 102, 102, 1);
+        line-height: 20px;
       }
     }
-    .fdTextBox{
-      margin-left:88px;
+    .fdTextBox {
+      margin-left: 88px;
 
       .tDiv_img {
         margin-bottom: 32px;
         margin-top: 16px;
         position: relative;
 
-        .edit{
+        .edit {
           position: absolute;
           top: 0;
           left: 0;
@@ -1321,14 +1544,14 @@ export default {
           justify-content: center;
           opacity: 0;
         }
-        & > .tDiv_imgDiv{
+        & > .tDiv_imgDiv {
           margin-right: 15px;
-          margin-top:17px;
+          margin-top: 17px;
           position: relative;
-          width:100px;
-          height:100px;
+          width: 100px;
+          height: 100px;
         }
-        & > .tDiv_imgDiv:hover .edit{
+        & > .tDiv_imgDiv:hover .edit {
           opacity: 1;
         }
         img {
@@ -1338,8 +1561,8 @@ export default {
         }
       }
     }
-    .look_box{
-      .look_div{
+    .look_box {
+      .look_div {
         .user-info {
           margin-top: 24px;
           font-size: 16px;
@@ -1353,22 +1576,22 @@ export default {
             }
           }
         }
-        .content{
+        .content {
           margin-top: 40px;
-          .item{
+          .item {
             margin-bottom: 20px;
-            font-size:16px;
-            font-family:PingFangSC-Regular,PingFang SC;
-            font-weight:400;
-            color:#333;
-            line-height:22px;
+            font-size: 16px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #333;
+            line-height: 22px;
             span {
               display: inline-block;
               &:nth-child(2) {
                 color: #666;
               }
             }
-            .backInfo{
+            .backInfo {
               width: 320px;
               font-family: PingFangSC-Regular, PingFang SC;
               font-weight: 400;
@@ -1379,151 +1602,149 @@ export default {
             display: flex;
           }
         }
-        .top{
-          margin-top:25px;
-          .name{
-            height:22px;
-            font-size:16px;
-            font-family:PingFangSC-Medium,PingFang SC;
-            font-weight:500;
-            color:rgba(60,60,60,1);
-            line-height:22px;
+        .top {
+          margin-top: 25px;
+          .name {
+            height: 22px;
+            font-size: 16px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: 500;
+            color: rgba(60, 60, 60, 1);
+            line-height: 22px;
           }
-          .phone{
-            margin-top:4px;
-            height:22px;
-            font-size:16px;
-            font-family:PingFangSC-Regular,PingFang SC;
-            font-weight:400;
-            color:rgba(153,153,153,1);
-            line-height:22px;
+          .phone {
+            margin-top: 4px;
+            height: 22px;
+            font-size: 16px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(153, 153, 153, 1);
+            line-height: 22px;
           }
-          .date{
-            height:22px;
-            font-size:16px;
-            font-family:PingFangSC-Regular,PingFang SC;
-            font-weight:400;
-            color:rgba(153,153,153,1);
-            line-height:22px;
+          .date {
+            height: 22px;
+            font-size: 16px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(153, 153, 153, 1);
+            line-height: 22px;
           }
-          img{
+          img {
             margin-right: 32px;
-            width:48px;
-            height:48px;
+            width: 48px;
+            height: 48px;
             border-radius: 24px;
           }
         }
       }
     }
-    .op_box{
-      margin-top:32px;
-      height:200px;
+    .op_box {
+      margin-top: 32px;
+      height: 200px;
       overflow-x: hidden;
       overflow-y: auto;
-      .op_div{
+      .op_div {
         margin-bottom: 32px;
-        .top{
-          height:17px;
-          font-size:12px;
-          font-family:PingFangSC-Regular,PingFang SC;
-          font-weight:400;
-          color:rgba(153,153,153,1);
-          line-height:17px;
+        .top {
+          height: 17px;
+          font-size: 12px;
+          font-family: PingFangSC-Regular, PingFang SC;
+          font-weight: 400;
+          color: rgba(153, 153, 153, 1);
+          line-height: 17px;
         }
-        .footer{
-          margin-top:9px;
-          height:20px;
-          font-size:14px;
-          font-family:PingFangSC-Medium,PingFang SC;
-          font-weight:500;
-          color:rgba(51,51,51,1);
-          line-height:20px;
+        .footer {
+          margin-top: 9px;
+          height: 20px;
+          font-size: 14px;
+          font-family: PingFangSC-Medium, PingFang SC;
+          font-weight: 500;
+          color: rgba(51, 51, 51, 1);
+          line-height: 20px;
         }
       }
     }
-    .msg_box{
+    .msg_box {
       height: 258px;
       overflow: auto;
-      .msg_div{
-        .msg_top{
+      .msg_div {
+        .msg_top {
           justify-content: flex-end;
           display: flex;
-          margin-top:32px;
+          margin-top: 32px;
 
-          .msg{
-            color:#fff;
-            width:392px;
+          .msg {
+            color: #fff;
+            width: 392px;
 
-            padding:16px 24px;
-            background:rgba(34,116,229,1);
-            border-radius:32px 0px 32px 32px;
-            border:1px solid rgba(245,245,245,1);
+            padding: 16px 24px;
+            background: rgba(34, 116, 229, 1);
+            border-radius: 32px 0px 32px 32px;
+            border: 1px solid rgba(245, 245, 245, 1);
           }
-          .img{
-            color:#fff;
-            margin-left:16px;
-            width:48px;
-            height:48px;
-            background:rgba(34,116,229,1);
-            opacity:0.3;
+          .img {
+            color: #fff;
+            margin-left: 16px;
+            width: 48px;
+            height: 48px;
+            background: rgba(34, 116, 229, 1);
+            opacity: 0.3;
             text-align: center;
             border-radius: 24px;
             line-height: 48px;
           }
         }
-        .msg_date{
-          margin-top:8px;
+        .msg_date {
+          margin-top: 8px;
           text-align: right;
           padding-right: 70px;
 
-          font-size:12px;
-          font-family:PingFangSC-Regular,PingFang SC;
-          font-weight:400;
-          color:rgba(153,153,153,1);
-
+          font-size: 12px;
+          font-family: PingFangSC-Regular, PingFang SC;
+          font-weight: 400;
+          color: rgba(153, 153, 153, 1);
         }
       }
 
-      .msg_top2{
-          justify-content: start;
-          display: flex;
-          margin-top:32px;
+      .msg_top2 {
+        justify-content: start;
+        display: flex;
+        margin-top: 32px;
 
-          .msg2{
-            width:392px;
-            height:75px;
-            padding:16px 24px;
-            border-radius:32px 0px 32px 32px;
-          }
-          .img2{
-            color:#fff;
-            margin-left:16px;
-            width:48px;
-            margin-top:12px;
-            height:48px;
-            background:rgba(34,116,229,1);
-            opacity:0.3;
-            text-align: center;
-            border-radius: 24px;
-            line-height: 48px;
-          }
+        .msg2 {
+          width: 392px;
+          height: 75px;
+          padding: 16px 24px;
+          border-radius: 32px 0px 32px 32px;
         }
-        .msg_date2{
-          margin-top:8px;
-          padding-left: 70px;
-
-          font-size:12px;
-          font-family:PingFangSC-Regular,PingFang SC;
-          font-weight:400;
-          color:rgba(153,153,153,1);
-
+        .img2 {
+          color: #fff;
+          margin-left: 16px;
+          width: 48px;
+          margin-top: 12px;
+          height: 48px;
+          background: rgba(34, 116, 229, 1);
+          opacity: 0.3;
+          text-align: center;
+          border-radius: 24px;
+          line-height: 48px;
         }
+      }
+      .msg_date2 {
+        margin-top: 8px;
+        padding-left: 70px;
+
+        font-size: 12px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: rgba(153, 153, 153, 1);
+      }
     }
   }
 }
 .feedback {
-  background-color: #F6F8FA;
-  .export{
+  background-color: #f6f8fa;
+  .export {
     border: 1px solid #2274e5;
     height: 34px;
     line-height: 34px;
@@ -1532,20 +1753,20 @@ export default {
     border-radius: 4px;
     padding-right: 22px;
     cursor: pointer;
-    margin-top:3px;
-    margin-left:10px;
-    i{
+    margin-top: 3px;
+    margin-left: 10px;
+    i {
       padding: 0 9px 0 22px;
     }
   }
-  label{
-    width:48px;
-    height:22px;
-    font-size:16px;
-    font-family:PingFangSC-Regular,PingFang SC;
-    font-weight:400;
-    color:rgba(60,60,60,1);
-    line-height:22px;
+  label {
+    width: 48px;
+    height: 22px;
+    font-size: 16px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: rgba(60, 60, 60, 1);
+    line-height: 22px;
   }
   .fdBox {
     border-radius: 8px;
@@ -1553,274 +1774,273 @@ export default {
     background-color: #fff;
     // border-bottom: 1px dotted #e5e5e5;
     padding: 32px 32px 0px 32px;
-    &.active{
-      background:rgba(241,247,255,1);
+    &.active {
+      background: rgba(241, 247, 255, 1);
     }
-    .oper{
-      top:205px;
+    .oper {
+      top: 205px;
       right: 32px;
-       cursor: pointer;
+      cursor: pointer;
       line-height: 48px;
       text-align: center;
       position: absolute;
-      width:48px;
-      height:48px;
-      background:rgba(34,116,229,1);
-      opacity:0.3;
-      font-size:24px;
-      font-family:PingFangSC-Medium,PingFang SC;
-      font-weight:500;
-      color:rgba(255,255,255,1);
+      width: 48px;
+      height: 48px;
+      background: rgba(34, 116, 229, 1);
+      opacity: 0.3;
+      font-size: 24px;
+      font-family: PingFangSC-Medium, PingFang SC;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 1);
       border-radius: 24px;
     }
-    .btn_box{
-      top:39px;
+    .btn_box {
+      top: 39px;
       right: 32px;
       display: flex;
       position: absolute;
-      .op{
+      .op {
         cursor: pointer;
-        width:80px;
-        height:32px;
-        background:rgba(34,116,229,1);
-        border-radius:4px;
+        width: 80px;
+        height: 32px;
+        background: rgba(34, 116, 229, 1);
+        border-radius: 4px;
         text-align: center;
         line-height: 32px;
-        font-size:14px;
-        font-family:PingFangSC-Regular,PingFang SC;
-        font-weight:400;
-        color:rgba(255,255,255,1);
-      }
-      .look{
-         cursor: pointer;
-        margin-left:16px;
-        font-size:14px;
-        font-family:PingFangSC-Regular,PingFang SC;
-        font-weight:400;
-        color:rgba(34,116,229,1);
-        width:80px;
-        height:32px;
-        text-align: center;
-        line-height: 32px;
-        border-radius:4px;
-        border:1px solid rgba(34,116,229,1);
-      }
-    }
-    .fdItem{
-    border-bottom: 1px dotted #e5e5e5;
-    display: flex;
-    .fbImg {
-      margin-right: 24px;
-      img {
-        width: 48px;
-        border-radius: 24px;
-        height: 48px;
-      }
-    }
-    .fdTextDate {
-      margin-top:8px;
-      height: 20px;
-      font-size: 14px;
-      font-family: PingFangSC-Regular, PingFang SC;
-      font-weight: 400;
-      color: rgba(153, 153, 153, 1);
-      line-height: 20px;
-    }
-    .callBackInfo{
-      position: relative;
-      width:646px;
-      height:55px;
-      background:rgba(255,255,255,1);
-      border-radius:4px;
-      padding-left:16px;
-      line-height: 55px;
-      margin-top:16px;
-      color:#666;
-      .info{
-        width:95%;
-      }
-      .toInfo{
-        cursor: pointer;
-        color:#2274e5;
-        position: absolute;
-        right: -66px;
-        top:-15px;
-
-    }
-    }
-    .fdTextBox {
-      flex: 1;
-      .lookBgm{
-        width:760px;
-        background:rgba(34,116,229,0.05);
-        border-radius:4px;
-        padding:16px 16px;
-        margin-top:24px;
-        margin-bottom: 32px;
-      }
-      .tDiv_01 {
-        & > span:nth-child(1) {
-          width:80px;
-          height:22px;
-          font-size:16px;
-          font-family:PingFangSC-Medium,PingFang SC;
-          font-weight:500;
-          color:rgba(60,60,60,1);
-          line-height:22px;
-        }
-        & > span:nth-child(2) {
-          width: 89px;
-          height: 20px;
-          margin-left: 24px;
-          font-size: 14px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: rgba(153, 153, 153, 1);
-          line-height: 20px;
-        }
-        & > span:nth-child(3) {
-          margin-left: 32px;
-          width: 24px;
-          height: 17px;
-          font-size: 12px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: rgba(153, 153, 153, 1);
-          line-height: 17px;
-        }
-        & > span:nth-child(4) {
-          width: 86px;
-          margin-left: 8px;
-          height: 17px;
-          font-size: 12px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: rgba(34, 116, 229, 1);
-          line-height: 17px;
-        }
-      }
-      .tDiv_02 {
-        font-size: 12px;
+        font-size: 14px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
-        color: rgba(102, 102, 102, 1);
-        line-height: 17px;
-        margin-top: 7px;
-        & > span:nth-child(2) {
-          margin-left: 69px;
-          margin-right: 69px;
-        }
+        color: rgba(255, 255, 255, 1);
       }
-      .tDiv_03 {
-        margin-top: 24px;
-        margin-bottom: 6px;
-        & > span:nth-child(1) {
-          width: 70px;
-          height: 20px;
-          font-size: 14px;
-          font-family: PingFangSC-Medium, PingFang SC;
-          font-weight: 500;
-          color: rgba(102, 102, 102, 1);
-          line-height: 20px;
-        }
-        & > span:nth-child(2) {
-          width: 92px;
-          height: 20px;
-          font-size: 14px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: rgba(34, 116, 229, 1);
-          line-height: 20px;
-        }
-      }
-      .tDiv_04_status{
-         span{
-           font-size:14px;
-           color:#666;
-         }
-         span.active {
-           color:#FF0000 !important;
-         }
-        }
-      .tDiv_04 {
-        margin-bottom: 8px;
-
-        & > span:nth-child(1) {
-          width: 70px;
-          height: 20px;
-          font-size: 14px;
-          font-family: PingFangSC-Medium, PingFang SC;
-          font-weight: 500;
-          color: rgba(102, 102, 102, 1);
-          line-height: 20px;
-        }
-        & > span:nth-child(2) {
-          height: 20px;
-          font-size: 14px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: rgba(102, 102, 102, 1);
-          line-height: 20px;
-        }
-
-        & > div:nth-child(1) {
-          width: 70px;
-          font-size: 14px;
-          font-family: PingFangSC-Medium, PingFang SC;
-          font-weight: 500;
-          color: rgba(102, 102, 102, 1);
-          line-height: 20px;
-        }
-        & > div:nth-child(2) {
-          font-size: 14px;
-          font-family: PingFangSC-Regular, PingFang SC;
-          font-weight: 400;
-          color: rgba(102, 102, 102, 1);
-          line-height: 20px;
-        }
-      }
-      .tDiv_img {
-        margin-bottom: 32px;
-        margin-top: 16px;
-        position: relative;
-
-        .edit{
-          position: absolute;
-          top: 0;
-          left: 0;
-          text-align: center;
-          width: 100px;
-          height: 100px;
-          background: rgba(0, 0, 0, 0.3);
-          color: #fff;
-          display: -webkit-box;
-          display: -ms-flexbox;
-          display: flex;
-          -webkit-box-orient: vertical;
-          -webkit-box-direction: normal;
-          -ms-flex-direction: column;
-          flex-direction: column;
-          -webkit-box-pack: center;
-          -ms-flex-pack: center;
-          justify-content: center;
-          opacity: 0;
-        }
-        & > .tDiv_imgDiv{
-          margin-right: 15px;
-          position: relative;
-          width:100px;
-          height:100px;
-        }
-        & > .tDiv_imgDiv:hover .edit{
-          opacity: 1;
-        }
-        img {
-          width: 100px;
-          height: 100px;
-          margin-right: 32px;
-        }
+      .look {
+        cursor: pointer;
+        margin-left: 16px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: rgba(34, 116, 229, 1);
+        width: 80px;
+        height: 32px;
+        text-align: center;
+        line-height: 32px;
+        border-radius: 4px;
+        border: 1px solid rgba(34, 116, 229, 1);
       }
     }
+    .fdItem {
+      border-bottom: 1px dotted #e5e5e5;
+      display: flex;
+      .fbImg {
+        margin-right: 24px;
+        img {
+          width: 48px;
+          border-radius: 24px;
+          height: 48px;
+        }
+      }
+      .fdTextDate {
+        margin-top: 8px;
+        height: 20px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: rgba(153, 153, 153, 1);
+        line-height: 20px;
+      }
+      .callBackInfo {
+        position: relative;
+        width: 646px;
+        height: 55px;
+        background: rgba(255, 255, 255, 1);
+        border-radius: 4px;
+        padding-left: 16px;
+        line-height: 55px;
+        margin-top: 16px;
+        color: #666;
+        .info {
+          width: 95%;
+        }
+        .toInfo {
+          cursor: pointer;
+          color: #2274e5;
+          position: absolute;
+          right: -66px;
+          top: -15px;
+        }
+      }
+      .fdTextBox {
+        flex: 1;
+        .lookBgm {
+          width: 760px;
+          background: rgba(34, 116, 229, 0.05);
+          border-radius: 4px;
+          padding: 16px 16px;
+          margin-top: 24px;
+          margin-bottom: 32px;
+        }
+        .tDiv_01 {
+          & > span:nth-child(1) {
+            width: 80px;
+            height: 22px;
+            font-size: 16px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: 500;
+            color: rgba(60, 60, 60, 1);
+            line-height: 22px;
+          }
+          & > span:nth-child(2) {
+            width: 89px;
+            height: 20px;
+            margin-left: 24px;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(153, 153, 153, 1);
+            line-height: 20px;
+          }
+          & > span:nth-child(3) {
+            margin-left: 32px;
+            width: 24px;
+            height: 17px;
+            font-size: 12px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(153, 153, 153, 1);
+            line-height: 17px;
+          }
+          & > span:nth-child(4) {
+            width: 86px;
+            margin-left: 8px;
+            height: 17px;
+            font-size: 12px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(34, 116, 229, 1);
+            line-height: 17px;
+          }
+        }
+        .tDiv_02 {
+          font-size: 12px;
+          font-family: PingFangSC-Regular, PingFang SC;
+          font-weight: 400;
+          color: rgba(102, 102, 102, 1);
+          line-height: 17px;
+          margin-top: 7px;
+          & > span:nth-child(2) {
+            margin-left: 69px;
+            margin-right: 69px;
+          }
+        }
+        .tDiv_03 {
+          margin-top: 24px;
+          margin-bottom: 6px;
+          & > span:nth-child(1) {
+            width: 70px;
+            height: 20px;
+            font-size: 14px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: 500;
+            color: rgba(102, 102, 102, 1);
+            line-height: 20px;
+          }
+          & > span:nth-child(2) {
+            width: 92px;
+            height: 20px;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(34, 116, 229, 1);
+            line-height: 20px;
+          }
+        }
+        .tDiv_04_status {
+          span {
+            font-size: 14px;
+            color: #666;
+          }
+          span.active {
+            color: #ff0000 !important;
+          }
+        }
+        .tDiv_04 {
+          margin-bottom: 8px;
+
+          & > span:nth-child(1) {
+            width: 70px;
+            height: 20px;
+            font-size: 14px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: 500;
+            color: rgba(102, 102, 102, 1);
+            line-height: 20px;
+          }
+          & > span:nth-child(2) {
+            height: 20px;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(102, 102, 102, 1);
+            line-height: 20px;
+          }
+
+          & > div:nth-child(1) {
+            width: 70px;
+            font-size: 14px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            font-weight: 500;
+            color: rgba(102, 102, 102, 1);
+            line-height: 20px;
+          }
+          & > div:nth-child(2) {
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(102, 102, 102, 1);
+            line-height: 20px;
+          }
+        }
+        .tDiv_img {
+          margin-bottom: 32px;
+          margin-top: 16px;
+          position: relative;
+
+          .edit {
+            position: absolute;
+            top: 0;
+            left: 0;
+            text-align: center;
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            -ms-flex-direction: column;
+            flex-direction: column;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            justify-content: center;
+            opacity: 0;
+          }
+          & > .tDiv_imgDiv {
+            margin-right: 15px;
+            position: relative;
+            width: 100px;
+            height: 100px;
+          }
+          & > .tDiv_imgDiv:hover .edit {
+            opacity: 1;
+          }
+          img {
+            width: 100px;
+            height: 100px;
+            margin-right: 32px;
+          }
+        }
+      }
     }
   }
   .pagination-container {

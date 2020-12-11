@@ -1,5 +1,13 @@
 <template>
   <div class="app-container">
+    <div
+        class="build"
+        @click="openAdd()"
+      >
+        <span>
+          <i class="el-icon-plus" />
+        </span>添加
+      </div>
     <div class="signadmin" style="overflow:hidden;margin-top:0px">
       <div class="app-menu" style="margin-top:0px">
         <h3 v-if="companys.length>0">全部（{{ companys.length-1 }}）</h3>
@@ -13,7 +21,7 @@
           >{{ item.shortName }}</li>
         </ul>
       </div>
-      <div class="app-content" >
+      <div class="app-content">
         <div class="fileBar_box">
           <div
             v-for="(item,index) in fileTexts"
@@ -67,6 +75,12 @@
                   v-if="permissionData.indexOf('advert_manage_mall_url_edit_executable')!=-1"
                   class="iconfont iconbianji"
                   @click="confirmEdit(row)"
+                />
+              </el-tooltip>
+              <el-tooltip class="item" effect="dark" content="删除" placement="top">
+                <i
+                  class="iconfont iconshanchulanse"
+                  @click="editDelete(row.id)"
                 />
               </el-tooltip>
             </template>
@@ -173,7 +187,8 @@ export default {
         url: '',
         enable: 2,
         companyId: '',
-        show: ''
+        show: '',
+        equip:3
       },
       rules: {
         url: [{ required: true, validator: validateUrl }]
@@ -234,6 +249,7 @@ export default {
       this.showDialog = true;
     },
     createData() {
+      this.ruleForm.companyId = this.listQuery.companyId
       this.$refs.ruleForm.validate(async valid => {
         if (valid) {
           protocolInsert(this.ruleForm).then(res => {
@@ -247,6 +263,7 @@ export default {
       });
     },
     updateData() {
+      this.ruleForm.companyId = this.listQuery.companyId
       this.$refs.ruleForm.validate(async valid => {
         if (valid) {
           protocolUpdate(this.ruleForm).then(res => {
@@ -263,6 +280,7 @@ export default {
       this.ruleForm = {
         type: 4,
         enable: 1,
+        equip:this.listQuery.equip,
         companyId:
           this.companys && this.companys.length > 0 ? this.companys[0].id : ''
       };

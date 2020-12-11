@@ -1,31 +1,6 @@
 <template>
   <div class="app-container">
-    <div class="analysis_box">
-      <div class="analysis_div">
-        <div>{{ analysisData.showTimes }}</div>
-        <div>展现量</div>
-      </div>
-      <div class="analysis_div">
-        <div>{{ analysisData.clickUserCounts }}</div>
-        <div>点击人数</div>
-      </div>
-      <div class="analysis_div">
-        <div>{{ parseFloat(analysisData.clickRate*100).toFixed(2) }}%</div>
-        <div>点击率</div>
-      </div>
-      <div class="analysis_div">
-        <div>{{ analysisData.clickTimes }}</div>
-        <div>点击次数</div>
-      </div>
-      <div class="analysis_div">
-        <div>{{ parseFloat(analysisData.bounceRate*100).toFixed(2) }}%</div>
-        <div>跳出率</div>
-      </div>
-      <div class="analysis_div">
-        <div>{{ showTime(analysisData.avgStayTime) }}</div>
-        <div>平均访问时长</div>
-      </div>
-    </div>
+
     <div class="echarts-time" style="margin-top:32px;">
       <div style="display:flex;">
         <div class="selectPartner" style="margin-right:32px">
@@ -69,6 +44,32 @@
         <em class="iconfont iconrilix" />
       </div>
     </div>
+    <div class="analysis_box">
+      <div class="analysis_div">
+        <div>{{ analysisData.showUserCounts }}</div>
+        <div>展现人数</div>
+      </div>
+      <div class="analysis_div">
+        <div>{{ analysisData.showTimes }}</div>
+        <div>展现量</div>
+      </div>
+       <div class="analysis_div">
+        <div>{{ analysisData.clickTimes }}</div>
+        <div>点击次数</div>
+      </div>
+      <div class="analysis_div">
+        <div>{{ analysisData.clickUserCounts?analysisData.clickUserCounts:0 }}</div>
+        <div>点击人数</div>
+      </div>
+      <div class="analysis_div">
+        <div>{{ parseFloat(analysisData.clickRate*100).toFixed(2) }}%</div>
+        <div>点击率</div>
+      </div>
+      <div class="analysis_div">
+        <div>{{ analysisData.avgRate }}</div>
+        <div>平均次数</div>
+      </div>
+    </div>
     <div class="pieLine_box">
       <div class="echarts-time betweenFlex" >
         <div >
@@ -88,7 +89,7 @@
           <div id="main" style="width: 450px;height:520px;"/>
         </div>
         <div class="line_data" style="margin-top:80px">
-          <ve-line :data="chartData" :settings="isPecent?chartSettings:[]" :extend="extendOperate" />
+          <ve-line :data="chartData" :settings="isPecent?chartSettings:{}" :extend="extendOperate" />
         </div>
       </div>
     </div>
@@ -105,14 +106,32 @@
             </template>
           </el-table-column>
           <el-table-column label="基础指标" >
-            <el-table-column label="展现量" >
+            <el-table-column label="展现人数" >
               <template slot-scope="{row}">
-                <div>{{ row.showTimes }}</div>
+                <div>{{ row.showUserCounts }}</div>
               </template>
             </el-table-column>
             <el-table-column label="点击人数" >
               <template slot-scope="{row}">
-                <div>{{ row.clickUser }}</div>
+                <div>{{ row.clickUserCounts }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="点击次数" >
+              <template slot-scope="{row}">
+                <div>{{ row.clickTimes }}</div>
+              </template>
+            </el-table-column>
+          </el-table-column>
+          <el-table-column label="展现质量指标" >
+
+            <el-table-column label="展现次数" >
+              <template slot-scope="{row}">
+                <div>{{ row.showTimes }}</div>
+              </template>
+            </el-table-column>
+            <el-table-column label="点击次数" >
+              <template slot-scope="{row}">
+                <div>{{ row.clickTimes }}</div>
               </template>
             </el-table-column>
             <el-table-column label="点击率" >
@@ -120,23 +139,7 @@
                 <div>{{ (row.clickRate*100).toFixed(2)+'%' }}</div>
               </template>
             </el-table-column>
-          </el-table-column>
-          <el-table-column label="展现质量指标" >
-            <el-table-column label="点击次数" >
-              <template slot-scope="{row}">
-                <div>{{ row.clickTime }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column label="跳出率" >
-              <template slot-scope="{row}">
-                <div>{{ (row.bounceRate*100).toFixed(2)+'%' }}</div>
-              </template>
-            </el-table-column>
-            <el-table-column label="平均访问时长" >
-              <template slot-scope="{row}">
-                <div>{{ showTime(row.avgTime) }}</div>
-              </template>
-            </el-table-column>
+
           </el-table-column>
         </el-table>
       </div>
@@ -144,14 +147,16 @@
   </div>
 </template>
 <script>
+import VueUeditorWrap from 'vue-ueditor-wrap' // ES6 Module
 import moment from 'moment'
 import VeLine from 'v-charts/lib/line.common'
-import { advise_analysis, advise_index_line, advise_index_list, open_company_list, vip_total, advise_total } from '@/api/api'
+import { advise_analysis, advise_index_line, advise_index_list, open_company_list, advise_total } from '@/api/api'
 import datacenter from '@/mixin/datacenter.js'
 import echarts from 'echarts'
 export default {
   components: {
-    VeLine
+    VeLine,
+    VueUeditorWrap
   },
   mixins: [datacenter],
   data() {
@@ -160,6 +165,7 @@ export default {
     }
     return {
       testIndex: 0,
+      msg:'',
       dateType: '',
       myChart: null,
       listQuery: { companyId: '', startTime: '2020-4-10', endTime: '2020-5-6', equip: 0, sort: 1, type: 0 },
@@ -204,9 +210,7 @@ export default {
       this.analysisData = res.data
     })
     this.currentDate = moment().format('YYYY-MM-DD')
-    vip_total().then(res => {
-      console.log(res)
-    })
+
 
     // vip_register_list(this.listQuery).then(res => {
     //   const dataTime = res.data.xAxis
@@ -267,14 +271,13 @@ export default {
         for (const item in res.data) {
           temp.push({
             name: item,
-            avgTime: res.data[item].avgTime,
-            bounceRate: res.data[item].bounceRate,
+            avgRate: res.data[item].avgRate,
             clickRate: res.data[item].clickRate,
-            clickTime: res.data[item].clickTime,
-            clickUser: res.data[item].clickUser,
+            clickTimes: res.data[item].clickTimes,
+            clickUserCounts: res.data[item].clickUserCounts,
+            showTimes: res.data[item].showTimes,
             equip: res.data[item].equip,
-            payCount: res.data[item].payCount,
-            showTimes: res.data[item].showTimes
+            showUserCounts: res.data[item].showUserCounts
           })
         }
 

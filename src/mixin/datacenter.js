@@ -26,6 +26,7 @@ const datacenter = {
           top: 30,
           containLabel: true
         },
+        color:['#F7EB61','#8590FF','#96FF75','#F69A83'],
         yAxis: {
           axisLine: {
             show: false
@@ -37,6 +38,7 @@ const datacenter = {
               color: 'rgba(33,148,246,0.2)'
             }
           },
+
           axisTick: {
             show: false
           },

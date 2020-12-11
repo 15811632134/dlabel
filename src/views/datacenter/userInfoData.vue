@@ -263,7 +263,7 @@
             </span>
           </template>
           <template slot-scope="scope">
-            <span v-if="scope.row.area">{{ scope.row.area.toFixed(4) }}</span>
+            <span>{{ scope.row.area }}</span>
           </template>
         </el-table-column>
 
@@ -336,7 +336,7 @@
             </span>
           </template>
           <template slot-scope="scope">
-            <span>{{ scope.row.area.toFixed(4) || "" }}</span>
+            <span>{{ scope.row.area }}</span>
           </template>
         </el-table-column>
 
@@ -400,7 +400,7 @@
             </span>
           </template>
           <template slot-scope="scope">
-            <span v-if="scope.row">{{ scope.row.area.toFixed(4) }}</span>
+            <span>{{ scope.row.area}}</span>
           </template>
         </el-table-column>
         <el-table-column sortable property="print_times">
